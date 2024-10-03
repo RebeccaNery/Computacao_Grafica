@@ -5,3 +5,7 @@ my_gl_framework --> Utilizando o framework OpenGL fornecido pelo professor, adap
 1. Um pixel, utilizando a função PutPixel, dadas as coordenadas x e y;
 2. Uma reta, utilizando a função DrawLine, feita com o Algoritmo de Bresenham, dadas as coordenadas x1, y1, x2 e y2;
 3. Um triângulo, utilizando a função DrawLine consecutivamente, dadas as coordenadas x1, y1, x2, y2, x3 e y3.
+
+eventos_OpenGL --> 
+1. Eventos utilizando o mouse
+2. Eventos utilizando o teclado
