@@ -96,29 +96,18 @@ void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
             printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
             desenhaPonto(xf, yf);
             desenhaLinha(xi, yi, xf, yf);
+            glBegin(GL_QUADS);
+                glVertex2i(xi, yi);
+                glVertex2i(xf, yi);
+                glVertex2i(xf, yf);
+                glVertex2i(xi, yf);
+            glEnd();
             primeiroclique = false;
         }
     }
 }
 
-
-
-void desenhaLinhaCliques(){
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    if (primeiroclique){
-        desenhaPonto(xi, yi);
-    }
-
-    if(segundoclique){ 
-        desenhaPonto(xf, yf);        
-        desenhaLinha(xi, yi, xf, yf);
-    }
-    
-    glFlush();
-}
-
-void desenhaRetanguloCliques(){
+/*void desenhaRetanguloCliques(){
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (primeiroclique){
@@ -136,7 +125,7 @@ void desenhaRetanguloCliques(){
     }
     
     glFlush();
-}
+}*/
 
 void regras_menu(GLint opcao) {
     switch (opcao) {
@@ -161,11 +150,11 @@ void regras_submenu(GLint opcao) {
             break;
         case 2:
             printf("Opção 'Desenhar Linha' selecionada\n");
-            desenhaLinhaCliques();
+            desenhaLinha(xi, yi, xf, yf);
             break;
         case 3:
             printf("Opção 'Desenhar Retangulo' selecionada\n");
-            desenhaRetanguloCliques();
+            //desenhaRetanguloCliques();
             break;
     }
     glutPostRedisplay();
@@ -223,15 +212,6 @@ void mouseMovimentoPassivo(GLint x, GLint y){
     printf("Movendo o mouse sem pressionar na posicao %dx%d\n", x, y);
 }
 
-void desenha(){
-    glClear(GL_COLOR_BUFFER_BIT);
-    /*desenhaPonto(xi, yi);
-    desenhaRetanguloCliques();
-    desenhaLinhaCliques();*/
-    //glFlush();
-    glutPostRedisplay();
-}
-
 
 int main(int argc, char **argv)
 {
@@ -240,10 +220,9 @@ int main(int argc, char **argv)
     initializeOpenGL();
 
 // ----------------------- O GLUT SÓ ACEITA UMA FUNÇÃO DE DISPLAY DE CADA VEZ!!! --------------------
-    //glutDisplayFunc(desenhaTrianguloProfessor);
-    //glutDisplayFunc(desenhaLinhaCliques);
+    glutDisplayFunc(desenhaTrianguloProfessor);
     //glutDisplayFunc(desenhaRetanguloCliques);
-    glutDisplayFunc(desenha);
+    //glutDisplayFunc(desenha);
 
 // ----------------------- FUNÇÕES DO TECLADO  --------------------
     //glutKeyboardFunc(teclado);
@@ -255,7 +234,7 @@ int main(int argc, char **argv)
     //glutMotionFunc(mouseMovimento);               //mouse pressionado e movendo ao mesmo tempo
     //glutPassiveMotionFunc(mouseMovimentoPassivo); //mouse movendo sem pressionar
     
-criarMenu();
+//criarMenu();
 
 
     glutMainLoop();                                 //sempre no final colocar em loop infinito  --> mantém a janela aberta
