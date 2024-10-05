@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include <stdio.h>
+#include <cmath>
 #define LARGURA 500
 #define ALTURA 500
 int xi, yi, xf, yf, auxiliar, contador=0;
@@ -38,6 +39,8 @@ void desenhaPonto(GLint x, GLint y){
     glFlush();
 }
 void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
+    if (segundoclique = true)
+    {
     glLineWidth(8.0);
     glColor3f(1.0f, 0.0f, 0.0f); 
     glBegin(GL_LINES);
@@ -45,6 +48,7 @@ void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
         glVertex2i(xf, yf);
     glEnd();
     glFlush();
+    }
 }
 
 void desenhaRetanguloCliques(){
@@ -58,6 +62,17 @@ void desenhaRetanguloCliques(){
     
     
     glFlush();
+}
+
+void desenhaCirculo(){
+    glBegin(GL_POLYGON);
+        for(int i=0; i<360; i++){
+            float theta = i*3.141592/180;
+            float x = 200 + 50*cos(theta);
+            float y = 200 + 50*sin(theta);
+            glVertex2f(x, y);
+        }
+
 }
 
 void desenhaTrianguloProfessor(){
@@ -76,6 +91,12 @@ void desenhaTrianguloProfessor(){
 
 if(formaGeometrica == 1){
     desenhaPonto(xi, yi);
+}else if(formaGeometrica == 2){
+    desenhaLinha(xi, yi, xf, yf);  
+}else if(formaGeometrica == 3){
+    desenhaRetanguloCliques();
+}else if(formaGeometrica == 4){
+    desenhaCirculo();
 }
 
     glFlush();
@@ -115,8 +136,9 @@ void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
             segundoclique = true;
             printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
             desenhaPonto(xf, yf);
-            desenhaLinha(xi, yi, xf, yf);
-            desenhaRetanguloCliques();
+            //desenhaLinha(xi, yi, xf, yf);
+            //desenhaRetanguloCliques();
+            desenhaCirculo();
             primeiroclique = false;
         }
     }
@@ -126,11 +148,11 @@ void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
 
 void regras_menu(GLint opcao) {
     switch (opcao) {
-        case 4:
+        case 5:
             limparTela();
             printf("Tela limpa\n");
             break;
-        case 5:
+        case 6:
             printf("Saindo...\n");
             exit(0);  // Sair do programa
             break;
@@ -147,11 +169,15 @@ void regras_submenu(GLint opcao) {
             break;
         case 2:
             printf("Opção 'Desenhar Linha' selecionada\n");
-            desenhaLinha(xi, yi, xf, yf);
+            formaGeometrica = 2;
             break;
         case 3:
             printf("Opção 'Desenhar Retangulo' selecionada\n");
-            //desenhaRetanguloCliques();
+            formaGeometrica = 3;
+            break;
+        case 4:
+            printf("Opção 'Desenhar Circulo' selecionada\n");
+            formaGeometrica = 4;
             break;
     }
     glutPostRedisplay();
@@ -162,13 +188,13 @@ void criarMenu() {
     glutAddMenuEntry("Desenhar Ponto", 1);
     glutAddMenuEntry("Desenhar Linha", 2);
     glutAddMenuEntry("Desenhar Retangulo", 3);
-    
+    glutAddMenuEntry("Desenhar Círculo", 4);
     
     // Criar menu e adicionar opções
     int menu = glutCreateMenu(regras_menu);
     glutAddSubMenu("Desenhar", submenu);
-    glutAddMenuEntry("Limpar Tela", 4);
-    glutAddMenuEntry("Sair", 5);
+    glutAddMenuEntry("Limpar Tela", 5);
+    glutAddMenuEntry("Sair", 6);
 
     // Associar o menu ao botão direito do mouse
     glutAttachMenu(GLUT_RIGHT_BUTTON);
