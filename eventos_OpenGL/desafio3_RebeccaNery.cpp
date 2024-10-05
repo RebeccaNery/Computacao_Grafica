@@ -31,7 +31,6 @@ void limparTela() {
 }
 
 void desenhaPonto(GLint x, GLint y){
-    glColor3f(0.0f, 0.0f, 1.0f); //azul
     glPointSize(8.0);
     glBegin(GL_POINTS);
         glVertex2i(x, y);
