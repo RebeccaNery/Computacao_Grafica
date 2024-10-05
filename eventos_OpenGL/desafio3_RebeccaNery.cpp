@@ -62,8 +62,8 @@ void desenhaCirculo(){
     glBegin(GL_POLYGON);
         for(int i=0; i<360; i++){
             float theta = i*3.141592/180;
-            float x = 200 + 50*cos(theta);
-            float y = 200 + 50*sin(theta);
+            float x = xi + 50*cos(theta);
+            float y = yi + 50*sin(theta);
             glVertex2f(x, y);
         }
     glEnd();
