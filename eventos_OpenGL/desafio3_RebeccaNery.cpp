@@ -72,6 +72,8 @@ void desenhaCirculo(){
             float y = 200 + 50*sin(theta);
             glVertex2f(x, y);
         }
+    glEnd();
+    glFlush();
 
 }
 
@@ -162,7 +164,8 @@ void regras_menu(GLint opcao) {
 
 void regras_submenu(GLint opcao) {
     printf("Opção %d selecionada\n", opcao);
-    switch (opcao) {
+    formaGeometrica = opcao;
+    /*switch (opcao) {
         case 1:
             printf("Opção 'Desenhar Ponto' selecionada\n");
             formaGeometrica = 1;
@@ -179,7 +182,7 @@ void regras_submenu(GLint opcao) {
             printf("Opção 'Desenhar Circulo' selecionada\n");
             formaGeometrica = 4;
             break;
-    }
+    }*/
     glutPostRedisplay();
 }
 
