@@ -39,8 +39,6 @@ void desenhaPonto(GLint x, GLint y){
     glFlush();
 }
 void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
-    if (segundoclique == true)
-    {
     glLineWidth(8.0);
     glColor3f(1.0f, 0.0f, 0.0f); 
     glBegin(GL_LINES);
@@ -48,19 +46,15 @@ void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
         glVertex2i(xf, yf);
     glEnd();
     glFlush();
-    }
 }
 
-void desenhaRetanguloCliques(){
-       
-        glBegin(GL_QUADS);
-            glVertex2i(xi, yi);
-            glVertex2i(xf, yi);
-            glVertex2i(xf, yf);
-            glVertex2i(xi, yf);
-        glEnd();
-    
-    
+void desenhaRetanu(){
+    glBegin(GL_QUADS);
+        glVertex2i(xi, yi);
+        glVertex2i(xf, yi);
+        glVertex2i(xf, yf);
+        glVertex2i(xi, yf);
+    glEnd();
     glFlush();
 }
 
@@ -92,12 +86,16 @@ void desenhaTrianguloProfessor(){
     glEnd();
 
 if(formaGeometrica == 1){
+    printf("Opção 'Desenhar Ponto' selecionada\n");
     desenhaPonto(xi, yi);
 }else if(formaGeometrica == 2){
+    printf("Opção 'Desenhar Linha' selecionada\n");
     desenhaLinha(xi, yi, xf, yf);  
 }else if(formaGeometrica == 3){
-    desenhaRetanguloCliques();
+    printf("Opção 'Desenhar Retangulo' selecionada\n");
+    desenhaRetangulo();
 }else if(formaGeometrica == 4){
+    printf("Opção 'Desenhar Circulo' selecionada\n");
     desenhaCirculo();
 }
 
@@ -119,36 +117,6 @@ void tecladoEspecial(GLint tecla, GLint x, GLint y){
 }
 
 
-
-/*void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
-    
-    if (botao == GLUT_LEFT_BUTTON && acao == GLUT_DOWN) {
-
-        if (!primeiroclique) {
-            // Registrar as coordenadas do primeiro clique
-            xi = x;
-            yi = y;
-            primeiroclique = true;
-            printf("primeiro clique ==> xi: %d, yi: %d\n", xi, yi);
-            desenhaPonto(xi, yi);
-        } else {
-            // Registrar as coordenadas do segundo clique
-            xf = x;
-            yf = y;
-            segundoclique = true;
-            printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
-            desenhaPonto(xf, yf);
-            //desenhaLinha(xi, yi, xf, yf);
-            //desenhaRetanguloCliques();
-            desenhaCirculo();
-            primeiroclique = false;
-            segundoclique = false;
-        }
-    }
-}*/
-
-
-
 void regras_menu(GLint opcao) {
     switch (opcao) {
         case 5:
@@ -165,25 +133,8 @@ void regras_menu(GLint opcao) {
 
 void regras_submenu(GLint opcao) {
     printf("Opção %d selecionada\n", opcao);
+    xi = yi = xf = yf = 0;
     formaGeometrica = opcao;
-    /*switch (opcao) {
-        case 1:
-            printf("Opção 'Desenhar Ponto' selecionada\n");
-            formaGeometrica = 1;
-            break;
-        case 2:
-            printf("Opção 'Desenhar Linha' selecionada\n");
-            formaGeometrica = 2;
-            break;
-        case 3:
-            printf("Opção 'Desenhar Retangulo' selecionada\n");
-            formaGeometrica = 3;
-            break;
-        case 4:
-            printf("Opção 'Desenhar Circulo' selecionada\n");
-            formaGeometrica = 4;
-            break;
-    }*/
     glutPostRedisplay();
 }
 
@@ -226,11 +177,11 @@ void mouseGerenciador(GLint botao, GLint acao, GLint x, GLint y){
             printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
             desenhaPonto(xf, yf);
             //desenhaLinha(xi, yi, xf, yf);
-            //desenhaRetanguloCliques();
+            //desenhaRetangulo();
             //desenhaCirculo();
             primeiroclique = false;
         }
-            
+            segundoclique = false;
         }
     } else if(botao == GLUT_RIGHT_BUTTON){
         printf("Botão direito ");
@@ -242,7 +193,6 @@ void mouseGerenciador(GLint botao, GLint acao, GLint x, GLint y){
     } else if (acao == GLUT_UP){
         printf("liberado na posição %dx%d\n", x, y);
     }
-
 
 }
 
@@ -267,15 +217,13 @@ int main(int argc, char **argv)
 
 // ----------------------- O GLUT SÓ ACEITA UMA FUNÇÃO DE DISPLAY DE CADA VEZ!!! --------------------
     glutDisplayFunc(desenhaTrianguloProfessor);
-    //glutDisplayFunc(desenhaRetanguloCliques);
 
 // ----------------------- FUNÇÕES DO TECLADO  --------------------
-    //glutKeyboardFunc(teclado);
-    //glutSpecialFunc(tecladoEspecial);
+    glutKeyboardFunc(teclado);
+    glutSpecialFunc(tecladoEspecial);
 
 // ----------------------- FUNÇÕES DO MOUSE  -------------------- só pode uma de cada vez?
-    glutMouseFunc(mouseGerenciador);                //mouse pressionado --- sempre usar essa
-    //glutMouseFunc(controleDeCliques);               // sempre usar essa
+    glutMouseFunc(mouseGerenciador);                //mouse pressionado ---                // sempre usar essa
     //glutMotionFunc(mouseMovimento);               //mouse pressionado e movendo ao mesmo tempo
     //glutPassiveMotionFunc(mouseMovimentoPassivo); //mouse movendo sem pressionar
     
