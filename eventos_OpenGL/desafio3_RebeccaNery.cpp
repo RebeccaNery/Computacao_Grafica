@@ -39,7 +39,7 @@ void desenhaPonto(GLint x, GLint y){
     glFlush();
 }
 void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
-    if (segundoclique = true)
+    if (segundoclique == true)
     {
     glLineWidth(8.0);
     glColor3f(1.0f, 0.0f, 0.0f); 
@@ -120,7 +120,7 @@ void tecladoEspecial(GLint tecla, GLint x, GLint y){
 
 
 
-void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
+/*void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
     
     if (botao == GLUT_LEFT_BUTTON && acao == GLUT_DOWN) {
 
@@ -142,9 +142,10 @@ void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
             //desenhaRetanguloCliques();
             desenhaCirculo();
             primeiroclique = false;
+            segundoclique = false;
         }
     }
-}
+}*/
 
 
 
@@ -191,7 +192,7 @@ void criarMenu() {
     glutAddMenuEntry("Desenhar Ponto", 1);
     glutAddMenuEntry("Desenhar Linha", 2);
     glutAddMenuEntry("Desenhar Retangulo", 3);
-    glutAddMenuEntry("Desenhar Círculo", 4);
+    glutAddMenuEntry("Desenhar Circulo", 4);
     
     // Criar menu e adicionar opções
     int menu = glutCreateMenu(regras_menu);
@@ -208,8 +209,27 @@ void mouseGerenciador(GLint botao, GLint acao, GLint x, GLint y){
     if(botao == GLUT_LEFT_BUTTON){
         printf("Botão esquerdo ");
         if(acao == GLUT_DOWN){
-            desenhaPonto(x, y);
-            auxiliar = 1;
+            /*desenhaPonto(x, y);
+            auxiliar = 1;*/
+            if (!primeiroclique) {
+            // Registrar as coordenadas do primeiro clique
+            xi = x;
+            yi = y;
+            primeiroclique = true;
+            printf("primeiro clique ==> xi: %d, yi: %d\n", xi, yi);
+            desenhaPonto(xi, yi);
+        } else {
+            // Registrar as coordenadas do segundo clique
+            xf = x;
+            yf = y;
+            segundoclique = true;
+            printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
+            desenhaPonto(xf, yf);
+            //desenhaLinha(xi, yi, xf, yf);
+            //desenhaRetanguloCliques();
+            //desenhaCirculo();
+            primeiroclique = false;
+        }
             
         }
     } else if(botao == GLUT_RIGHT_BUTTON){
@@ -253,9 +273,9 @@ int main(int argc, char **argv)
     //glutKeyboardFunc(teclado);
     //glutSpecialFunc(tecladoEspecial);
 
-// ----------------------- FUNÇÕES DO MOUSE  --------------------
+// ----------------------- FUNÇÕES DO MOUSE  -------------------- só pode uma de cada vez?
     glutMouseFunc(mouseGerenciador);                //mouse pressionado --- sempre usar essa
-    glutMouseFunc(controleDeCliques);               // sempre usar essa
+    //glutMouseFunc(controleDeCliques);               // sempre usar essa
     //glutMotionFunc(mouseMovimento);               //mouse pressionado e movendo ao mesmo tempo
     //glutPassiveMotionFunc(mouseMovimentoPassivo); //mouse movendo sem pressionar
     
