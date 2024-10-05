@@ -22,9 +22,12 @@ void initializeOpenGL(){
     glFlush();
 }
 
-void desenha(){
-    glFlush();
+void limparTela() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glutPostRedisplay(); 
+    //glFlush();  
 }
+
 
 void desenhaTrianguloProfessor(){
     glClear(GL_COLOR_BUFFER_BIT);
@@ -85,25 +88,20 @@ void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
             yi = y;
             primeiroclique = true;
             printf("primeiro clique ==> xi: %d, yi: %d\n", xi, yi);
+            desenhaPonto(xi, yi);
         } else {
             // Registrar as coordenadas do segundo clique
             xf = x;
             yf = y;
             segundoclique = true;
             printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
-            //glutPostRedisplay(); // Solicitar a atualização da tela
+            desenhaPonto(xf, yf);
+            primeiroclique = false;
         }
     }
-    glutPostRedisplay(); // Solicitar a atualização da tela
 }
 
-void limparTela() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    primeiroclique = false;
-    segundoclique = false;
-    glutPostRedisplay(); 
-    //glFlush();  
-}
+
 
 void desenhaLinhaCliques(){
     glClear(GL_COLOR_BUFFER_BIT);
@@ -141,18 +139,12 @@ void desenhaRetanguloCliques(){
 }
 
 void regras_menu(GLint opcao) {
-    limparTela();
     switch (opcao) {
-        case 1:
-            printf("Opção 'Desenhar' selecionada\n");
-            primeiroclique = false;
-            segundoclique = false;
-            break;
-        case 2:
+        case 4:
             limparTela();
             printf("Tela limpa\n");
             break;
-        case 3:
+        case 5:
             printf("Saindo...\n");
             exit(0);  // Sair do programa
             break;
@@ -161,25 +153,22 @@ void regras_menu(GLint opcao) {
 }
 
 void regras_submenu(GLint opcao) {
+    printf("Opção %d selecionada\n", opcao);
     switch (opcao) {
         case 1:
             printf("Opção 'Desenhar Ponto' selecionada\n");
-            limparTela();
-            primeiroclique = false;
-            segundoclique = false;
             desenhaPonto(xi, yi);
             break;
         case 2:
             printf("Opção 'Desenhar Linha' selecionada\n");
-            primeiroclique = false;
-            segundoclique = false;
+            desenhaLinhaCliques();
             break;
         case 3:
             printf("Opção 'Desenhar Retangulo' selecionada\n");
-            primeiroclique = false;
-            segundoclique = false;
+            desenhaRetanguloCliques();
             break;
     }
+    glutPostRedisplay();
 }
 
 void criarMenu() {
@@ -191,9 +180,9 @@ void criarMenu() {
     
     // Criar menu e adicionar opções
     int menu = glutCreateMenu(regras_menu);
-    glutAddSubMenu("Desenhar", 1);
-    glutAddMenuEntry("Limpar Tela", 2);
-    glutAddMenuEntry("Sair", 3);
+    glutAddSubMenu("Desenhar", submenu);
+    glutAddMenuEntry("Limpar Tela", 4);
+    glutAddMenuEntry("Sair", 5);
 
     // Associar o menu ao botão direito do mouse
     glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -233,6 +222,16 @@ void mouseMovimento(GLint x, GLint y){
 void mouseMovimentoPassivo(GLint x, GLint y){
     printf("Movendo o mouse sem pressionar na posicao %dx%d\n", x, y);
 }
+
+void desenha(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    /*desenhaPonto(xi, yi);
+    desenhaRetanguloCliques();
+    desenhaLinhaCliques();*/
+    //glFlush();
+    glutPostRedisplay();
+}
+
 
 int main(int argc, char **argv)
 {
