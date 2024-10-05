@@ -48,7 +48,7 @@ void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
     glFlush();
 }
 
-void desenhaRetanu(){
+void desenhaRetangulo(){
     glBegin(GL_QUADS);
         glVertex2i(xi, yi);
         glVertex2i(xf, yi);
@@ -71,6 +71,22 @@ void desenhaCirculo(){
 
 }
 
+void desenhaForma(){
+    if(formaGeometrica == 1){
+    printf("Opção 'Desenhar Ponto' selecionada\n");
+    desenhaPonto(xi, yi);
+    }else if(formaGeometrica == 2){
+    printf("Opção 'Desenhar Linha' selecionada\n");
+    desenhaLinha(xi, yi, xf, yf);  
+    }else if(formaGeometrica == 3){
+    printf("Opção 'Desenhar Retangulo' selecionada\n");
+    desenhaRetangulo();
+    }else if(formaGeometrica == 4){
+    printf("Opção 'Desenhar Circulo' selecionada\n");
+    desenhaCirculo();
+    }
+}
+
 void desenhaTrianguloProfessor(){
     glClear(GL_COLOR_BUFFER_BIT);
     //Desenhar algo na tela
@@ -84,20 +100,6 @@ void desenhaTrianguloProfessor(){
         glColor3f(0.0f, 0.0f, 1.0f);    //defini a cor azul
         glVertex2i(400, 350);           //desenho o terceiro vertice
     glEnd();
-
-if(formaGeometrica == 1){
-    printf("Opção 'Desenhar Ponto' selecionada\n");
-    desenhaPonto(xi, yi);
-}else if(formaGeometrica == 2){
-    printf("Opção 'Desenhar Linha' selecionada\n");
-    desenhaLinha(xi, yi, xf, yf);  
-}else if(formaGeometrica == 3){
-    printf("Opção 'Desenhar Retangulo' selecionada\n");
-    desenhaRetangulo();
-}else if(formaGeometrica == 4){
-    printf("Opção 'Desenhar Circulo' selecionada\n");
-    desenhaCirculo();
-}
 
     glFlush();
 }
@@ -134,6 +136,8 @@ void regras_menu(GLint opcao) {
 void regras_submenu(GLint opcao) {
     printf("Opção %d selecionada\n", opcao);
     xi = yi = xf = yf = 0;
+    primeiroclique = false;
+    segundoclique = false;
     formaGeometrica = opcao;
     glutPostRedisplay();
 }
@@ -176,9 +180,7 @@ void mouseGerenciador(GLint botao, GLint acao, GLint x, GLint y){
             segundoclique = true;
             printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
             desenhaPonto(xf, yf);
-            //desenhaLinha(xi, yi, xf, yf);
-            //desenhaRetangulo();
-            //desenhaCirculo();
+            desenhaForma();
             primeiroclique = false;
         }
             segundoclique = false;
