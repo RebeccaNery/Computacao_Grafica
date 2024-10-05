@@ -73,21 +73,21 @@ void desenhaCirculo(){
 
 void desenhaForma(){
     if(formaGeometrica == 1){
-    printf("Opção 'Desenhar Ponto' selecionada\n");
-    desenhaPonto(xi, yi);
+        printf("Opção 'Desenhar Ponto' selecionada\n");
+        desenhaPonto(xi, yi);
     }else if(formaGeometrica == 2){
-    printf("Opção 'Desenhar Linha' selecionada\n");
-    desenhaLinha(xi, yi, xf, yf);  
+        printf("Opção 'Desenhar Linha' selecionada\n");
+        desenhaLinha(xi, yi, xf, yf);  
     }else if(formaGeometrica == 3){
-    printf("Opção 'Desenhar Retangulo' selecionada\n");
-    desenhaRetangulo();
+        printf("Opção 'Desenhar Retangulo' selecionada\n");
+        desenhaRetangulo();
     }else if(formaGeometrica == 4){
-    printf("Opção 'Desenhar Circulo' selecionada\n");
-    desenhaCirculo();
+        printf("Opção 'Desenhar Circulo' selecionada\n");
+        desenhaCirculo();
     }
 }
 
-void desenhaTrianguloProfessor(){
+void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
     //Desenhar algo na tela
     glPointSize(4.0);
@@ -103,10 +103,12 @@ void desenhaTrianguloProfessor(){
 
     glFlush();
 }
+
 void teclado(GLubyte tecla, GLint x, GLint y){
-    //printf("tecla %c pressionada com o cursor na posicao x=%d; y=%d\n", tecla, x, y);
+    printf("tecla %c pressionada com o cursor na posicao x=%d; y=%d\n", tecla, x, y);
     if (tecla == 'r' || tecla == 'R'){
         glColor3f(1.0f, 0.0f, 0.0f); //vermelho
+        printf("Cor vermelha\n");
     }else if (tecla == 'g' || tecla == 'G'){
         glColor3f(0.0f, 1.0f, 0.0f); //verde
     }else if (tecla == 'b' || tecla == 'B'){
@@ -160,12 +162,11 @@ void criarMenu() {
 }
 
 void mouseGerenciador(GLint botao, GLint acao, GLint x, GLint y){
-    glColor3f(1.0f, 0.0f, 0.0f);
+    
     if(botao == GLUT_LEFT_BUTTON){
         printf("Botão esquerdo ");
         if(acao == GLUT_DOWN){
-            /*desenhaPonto(x, y);
-            auxiliar = 1;*/
+            auxiliar = 1;
             if (!primeiroclique) {
             // Registrar as coordenadas do primeiro clique
             xi = x;
@@ -218,7 +219,7 @@ int main(int argc, char **argv)
     initializeOpenGL();
 
 // ----------------------- O GLUT SÓ ACEITA UMA FUNÇÃO DE DISPLAY DE CADA VEZ!!! --------------------
-    glutDisplayFunc(desenhaTrianguloProfessor);
+    glutDisplayFunc(desenha);
 
 // ----------------------- FUNÇÕES DO TECLADO  --------------------
     glutKeyboardFunc(teclado);
@@ -226,7 +227,7 @@ int main(int argc, char **argv)
 
 // ----------------------- FUNÇÕES DO MOUSE  -------------------- só pode uma de cada vez?
     glutMouseFunc(mouseGerenciador);                //mouse pressionado ---                // sempre usar essa
-    //glutMotionFunc(mouseMovimento);               //mouse pressionado e movendo ao mesmo tempo
+    glutMotionFunc(mouseMovimento);               //mouse pressionado e movendo ao mesmo tempo
     //glutPassiveMotionFunc(mouseMovimentoPassivo); //mouse movendo sem pressionar
     
     criarMenu();
