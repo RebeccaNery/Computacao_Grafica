@@ -78,7 +78,6 @@ void desenhaLinha(GLint xi, GLint yi, GLint xf, GLint yf){
 }
 
 void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
-    glColor3f(1.0f, 0.0f, 0.0f);
     
     if (botao == GLUT_LEFT_BUTTON && acao == GLUT_DOWN) {
 
@@ -96,6 +95,7 @@ void controleDeCliques(GLint botao, GLint acao, GLint x, GLint y) {
             segundoclique = true;
             printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
             desenhaPonto(xf, yf);
+            desenhaLinha(xi, yi, xf, yf);
             primeiroclique = false;
         }
     }
