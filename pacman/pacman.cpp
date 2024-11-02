@@ -1,5 +1,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
+#include <cmath>
+
 #define LARGURA 500
 #define ALTURA 500
 
@@ -62,6 +64,18 @@ void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
     glEnd();
 }
 
+void desenhaBola(GLint i, GLint j){
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glBegin(GL_POLYGON);
+        for (int k = 0; k < 315; k++){
+            float angulo = k * 3.14159265f / 180.0f;
+            float x = i * LARGURA_DO_BLOCO + 12.5 + cos(angulo) * 12.5; //aumentei o raio para 12.5
+            float y = j * LARGURA_DO_BLOCO + 12.5 + sin(angulo) * 12.5; //aumentei o raio para 12.5
+            glVertex2f(x, y); 
+        }
+    glEnd();
+}
+
 void desenhaLabirinto(){
     for (int i = 0; i < LINHAS; i++){
         for (int j = 0; j < COLUNAS; j++){
@@ -90,7 +104,8 @@ void desenhaLabirinto(){
 }
 
 void desenhaJogador(){
-    desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
+    //desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
+    desenhaBola(jogador.x, jogador.y);
 }
 
 void desenha(){
