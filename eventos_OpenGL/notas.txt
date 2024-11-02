@@ -1,0 +1,20 @@
+if (!primeiroclique) {
+            // Registrar as coordenadas do primeiro clique
+            xi = x;
+            yi = y;
+            primeiroclique = true;
+            printf("primeiro clique ==> xi: %d, yi: %d\n", xi, yi);
+            desenhaPonto(xi, yi);
+        } else {
+            // Registrar as coordenadas do segundo clique
+            xf = x;
+            yf = y;
+            segundoclique = true;
+            printf("segundo clique ==> xf: %d, yf: %d\n", xf, yf);
+            desenhaPonto(xf, yf);
+            //desenhaLinha(xi, yi, xf, yf);
+            //desenhaRetanguloCliques();
+            desenhaCirculo();
+            primeiroclique = false;
+            segundoclique = false;
+        }
