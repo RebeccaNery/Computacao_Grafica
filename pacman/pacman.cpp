@@ -129,10 +129,7 @@ void desenhaLabirinto(){
 
 void desenhaJogador(){
     //desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
-    //desenhaBola(jogador.x, jogador.y);
     desenhaCirculo(jogador.x, jogador.y, 11.0, 0, 360, 0.0f, 0.0f, 0.0f);
-    //desenhaBoca(jogador.x, jogador.y, 12.5, 0, 30);
-    //desenhaBoca(jogador.x, jogador.y, 12.5, 330, 360);
     desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
 }
 
@@ -158,7 +155,9 @@ void moverJogador(GLint dx, GLint dy){
         } else if(labirinto[newY][newX] == 4){
             printf("VocÃª escapou do Labirinto!!! :) \n");
             exit(0);
-        } 
+        } else if(labirinto[newY][newX] == 5){
+            labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
+        }
         jogador.x = newX;
         jogador.y = newY;
         glutPostRedisplay();
