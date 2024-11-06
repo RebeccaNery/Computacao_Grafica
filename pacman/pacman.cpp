@@ -9,6 +9,12 @@ const int LINHAS = 20;
 const int COLUNAS = 20;
 const int LARGURA_DO_BLOCO = 25;
 
+int anguloMin = 30;  // Ângulo inicial da boca aberta
+int anguloMax = 330; // Ângulo inicial da boca aberta
+int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
+//bool abrindo = true; // Variável de controle da direção da boca (true = abrindo, false = fechando)
+
+
 typedef struct jogador{
     int x, y;
     bool possuiChave;
@@ -19,23 +25,23 @@ Jogador jogador = {1, 1, false};
 // Labirinto representado como matriz 2D
 int labirinto[LINHAS][COLUNAS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 3, 1},
-    {1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1},
-    {1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1},
-    {1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1},
-    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1},
-    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-    {1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 4, 1},
+    {1, 5, 5, 5, 1, 5, 5, 5, 5, 1, 5, 1, 5, 5, 5, 1, 5, 5, 3, 1},
+    {1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1},
+    {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1},
+    {1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 1},
+    {1, 5, 1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1, 5, 1},
+    {1, 5, 1, 5, 1, 1, 5, 1, 5, 1, 5, 1, 1, 1, 5, 1, 5, 1, 5, 1},
+    {1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1},
+    {1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 5, 1},
+    {1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 4, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
@@ -64,16 +70,30 @@ void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
     glEnd();
 }
 
-void desenhaBola(GLint i, GLint j){
-    glColor3f(1.0f, 1.0f, 0.0f);
+void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax, GLfloat R, GLfloat G, GLfloat B){
+    glColor3f(R, G, B);
     glBegin(GL_POLYGON);
-        for (int k = 0; k < 315; k++){
+        for (int k = 0; k < 360; k++){
             float angulo = k * 3.14159265f / 180.0f;
-            float x = i * LARGURA_DO_BLOCO + 12.5 + cos(angulo) * 12.5; //aumentei o raio para 12.5
-            float y = j * LARGURA_DO_BLOCO + 12.5 + sin(angulo) * 12.5; //aumentei o raio para 12.5
-            glVertex2f(x, y); 
+            float x = i * LARGURA_DO_BLOCO + 12.5 + cos(angulo) * raio; //aumentei o raio para 12.5
+            float y = j * LARGURA_DO_BLOCO + 12.5 + sin(angulo) * raio; //aumentei o raio para 12.5
+            glVertex2f(x, y);
         }
     glEnd();
+}
+
+
+void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax){ //desenha um círculo amarelo em cima do círculo preto
+    glColor3f(1.0, 1.0, 0.0); 
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(i*LARGURA_DO_BLOCO + 12.5, j*LARGURA_DO_BLOCO + 12.5); //centro do círculo
+        for (int k = anguloMin; k <= anguloMax; k++){ //abertura da boca
+        float angulo = k * 3.14159265f / 180.0f; //converte o ângulo de graus para radianos
+        glVertex2f(i*LARGURA_DO_BLOCO + 12.5 + raio * cos(angulo),
+               j*LARGURA_DO_BLOCO + 12.5 + raio * sin(angulo)); //desenha os vértices do círculo
+        }
+    glEnd();
+
 }
 
 void desenhaLabirinto(){
@@ -96,6 +116,10 @@ void desenhaLabirinto(){
             case 4: //Desenha Saida
                 desenhaBloco(j, i, 0.0f, 1.0f, 0.0f);
                 break;
+            case 5: //Desenha bloco em branco + bolinha
+                desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
+                desenhaCirculo(j, i, 5, 0, 360, 0.8f, 0.2f, 0.8f);
+                break;
             default:
                 break;
             }
@@ -105,7 +129,11 @@ void desenhaLabirinto(){
 
 void desenhaJogador(){
     //desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
-    desenhaBola(jogador.x, jogador.y);
+    //desenhaBola(jogador.x, jogador.y);
+    desenhaCirculo(jogador.x, jogador.y, 11.0, 0, 360, 0.0f, 0.0f, 0.0f);
+    //desenhaBoca(jogador.x, jogador.y, 12.5, 0, 30);
+    //desenhaBoca(jogador.x, jogador.y, 12.5, 330, 360);
+    desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
 }
 
 void desenha(){
@@ -137,6 +165,26 @@ void moverJogador(GLint dx, GLint dy){
     }
 }
 
+void mexeBoca(GLint valor){
+    // Abrir ou fechar a boca de acordo com os limites
+    anguloMin += deltaAngulo;
+    anguloMax -= deltaAngulo;
+
+    // Verifica se chegou no limite de abertura e inverte o movimento
+    if (anguloMin >= 0 && anguloMax <= 360) {
+        deltaAngulo = -deltaAngulo; // Inverte a direção
+    }
+    if (anguloMin <= 30 && anguloMax >= 330) {
+        deltaAngulo = -deltaAngulo; // Inverte a direção novamente
+    }
+
+    // Redesenha a cena com a nova posição da boca
+    glutPostRedisplay();
+
+    // Reprograma o próximo frame da animação
+    glutTimerFunc(30, mexeBoca, 0); // Intervalo de 30ms
+}
+
 void teclado(GLint tecla, GLint, GLint){
     switch (tecla){
     case GLUT_KEY_LEFT:
@@ -161,6 +209,8 @@ int main(int argc, char **argv){
     initializeOpenGL();
     glutDisplayFunc(desenha);
     glutSpecialFunc(teclado);
+    glutTimerFunc(0, mexeBoca, 0);
+
     glutMainLoop();
     return 0;
 }
