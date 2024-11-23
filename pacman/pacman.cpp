@@ -102,10 +102,10 @@ void desenhaLabirinto(){
             switch (labirinto[i][j])
             {
             case 0: //Desenha bloco vazio
-                desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
+                desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
                 break;
             case 1: //Desenha Parede
-                desenhaBloco(j, i, 0.0f, 0.0f, 1.0f);
+                desenhaBloco(j, i, 0.0f, 0.0f, 0.5f);
                 break;
             case 2: //Desenha porta trancada
                 desenhaBloco(j, i, 1.0f, 0.0f, 0.0f);
@@ -117,8 +117,8 @@ void desenhaLabirinto(){
                 desenhaBloco(j, i, 0.0f, 1.0f, 0.0f);
                 break;
             case 5: //Desenha bloco em branco + bolinha
-                desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
-                desenhaCirculo(j, i, 5, 0, 360, 0.8f, 0.2f, 0.8f);
+                desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
+                desenhaCirculo(j, i, 3, 0, 360, 1.0f, 1.0f, 0.0f);
                 break;
             default:
                 break;
@@ -130,7 +130,11 @@ void desenhaLabirinto(){
 void desenhaJogador(){
     //desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
     desenhaCirculo(jogador.x, jogador.y, 11.0, 0, 360, 0.0f, 0.0f, 0.0f);
+    //if (GLUT_KEY_LEFT){
     desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
+    //} else if (GLUT_KEY_RIGHT){
+    //desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
+    //}    
 }
 
 void desenha(){
