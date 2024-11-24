@@ -14,6 +14,7 @@ int anguloMax = 330; // Ângulo inicial da boca aberta
 int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
 //bool abrindo = true; // Variável de controle da direção da boca (true = abrindo, false = fechando)
 int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
+int contaPontos = 0;
 
 
 typedef struct jogador{
@@ -84,8 +85,12 @@ void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloM
 }
 
 
-void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax){ //desenha um círculo amarelo em cima do círculo preto
+/*void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax){ //desenha um círculo amarelo em cima do círculo preto
     glColor3f(1.0, 1.0, 0.0); 
+
+   if (direcao == 2){
+    glPushMatrix();  
+    glRotatef(180.0f, 0.0f, 0.0f, 1.0f);
     glBegin(GL_TRIANGLE_FAN);
         glVertex2f(i*LARGURA_DO_BLOCO + 12.5, j*LARGURA_DO_BLOCO + 12.5); //centro do círculo
         for (int k = anguloMin; k <= anguloMax; k++){ //abertura da boca
@@ -94,8 +99,50 @@ void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax)
                j*LARGURA_DO_BLOCO + 12.5 + raio * sin(angulo)); //desenha os vértices do círculo
         }
     glEnd();
+    glPopMatrix(); 
+    glFlush();
+    }else{
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(i*LARGURA_DO_BLOCO + 12.5, j*LARGURA_DO_BLOCO + 12.5); //centro do círculo
+        for (int k = anguloMin; k <= anguloMax; k++){ //abertura da boca
+        float angulo = k * 3.14159265f / 180.0f; //converte o ângulo de graus para radianos
+        glVertex2f(i*LARGURA_DO_BLOCO + 12.5 + raio * cos(angulo),
+               j*LARGURA_DO_BLOCO + 12.5 + raio * sin(angulo)); //desenha os vértices do círculo
+        }
+    glEnd();
+    glFlush();
+    //glPopMatrix();
+    }*/
 
+    void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax) {
+    glColor3f(1.0, 1.0, 0.0); 
+
+    glPushMatrix();  // Salva o estado atual da matriz
+    // Move o sistema de coordenadas para o centro da boca
+    glTranslatef(i * LARGURA_DO_BLOCO + 12.5, j * LARGURA_DO_BLOCO + 12.5, 0.0f);
+
+    if (direcao == 2) {  // Caso de rotação
+        glRotatef(180.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação no eixo Z
+    }else if (direcao == 3) {  // Caso de rotação
+        glRotatef(270.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação no eixo Z
+    }else if (direcao == 4) {  // Caso de rotação
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação no eixo Z
+    }
+
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, 0.0f); // Centro do círculo no novo sistema de coordenadas
+        for (int k = anguloMin; k <= anguloMax; k++) { // Abertura da boca
+            float angulo = k * 3.14159265f / 180.0f; // Converte o ângulo de graus para radianos
+            glVertex2f(raio * cos(angulo), raio * sin(angulo)); // Vértices do círculo
+        }
+    glEnd();
+
+    glPopMatrix();  // Restaura o estado da matriz
+    glFlush();
 }
+
+
+
 
 void desenhaLabirinto(){
     for (int i = 0; i < LINHAS; i++){
@@ -131,11 +178,7 @@ void desenhaLabirinto(){
 void desenhaJogador(){
     //desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
     desenhaCirculo(jogador.x, jogador.y, 11.0, 0, 360, 0.0f, 0.0f, 0.0f);
-    //if (GLUT_KEY_LEFT){
     desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
-    //} else if (GLUT_KEY_RIGHT){
-    //desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
-    //}    
 }
 
 void desenha(){
@@ -161,10 +204,14 @@ void moverJogador(GLint dx, GLint dy){
             printf("VocÃª escapou do Labirinto!!! :) \n");
             exit(0);
         } else if(labirinto[newY][newX] == 5){
+            contaPontos++;
+            printf("Pontos: %d \n", contaPontos); //nao esta aparecendo na tela !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
+            
         }
         jogador.x = newX;
         jogador.y = newY;
+        
         glutPostRedisplay();
     }
 }
@@ -202,10 +249,12 @@ int newY = jogador.y + dy;
             printf("Chave encontrada! \n");
             labirinto[newY][newX] = 0;
         } else if(labirinto[newY][newX] == 4){
-            printf("VocÃª escapou do Labirinto!!! :) \n");
+            printf("Voce escapou do Labirinto!!! :) \n");
             exit(0);
         } else if(labirinto[newY][newX] == 5){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
+            contaPontos++;
+            printf("Pontos: %d \n", contaPontos);
         }
 
         jogador.x = newX;
