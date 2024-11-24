@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <cmath>
+#include <string.h>
 
 #define LARGURA 500
 #define ALTURA 500
@@ -44,6 +45,7 @@ int labirinto[LINHAS][COLUNAS] = {
     {1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
     {1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1},
     {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 4, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
@@ -72,6 +74,13 @@ void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
     glEnd();
 }
 
+void desenhaPlacar(GLint x, GLint y, const char* texto) {
+    glRasterPos2f(x, y); // Define a posição inicial do texto
+    for (const char* c = texto; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c); // Renderiza cada caractere
+    }
+}
+
 void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax, GLfloat R, GLfloat G, GLfloat B){
     glColor3f(R, G, B);
     glBegin(GL_POLYGON);
@@ -85,36 +94,7 @@ void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloM
 }
 
 
-/*void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax){ //desenha um círculo amarelo em cima do círculo preto
-    glColor3f(1.0, 1.0, 0.0); 
-
-   if (direcao == 2){
-    glPushMatrix();  
-    glRotatef(180.0f, 0.0f, 0.0f, 1.0f);
-    glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(i*LARGURA_DO_BLOCO + 12.5, j*LARGURA_DO_BLOCO + 12.5); //centro do círculo
-        for (int k = anguloMin; k <= anguloMax; k++){ //abertura da boca
-        float angulo = k * 3.14159265f / 180.0f; //converte o ângulo de graus para radianos
-        glVertex2f(i*LARGURA_DO_BLOCO + 12.5 + raio * cos(angulo),
-               j*LARGURA_DO_BLOCO + 12.5 + raio * sin(angulo)); //desenha os vértices do círculo
-        }
-    glEnd();
-    glPopMatrix(); 
-    glFlush();
-    }else{
-    glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(i*LARGURA_DO_BLOCO + 12.5, j*LARGURA_DO_BLOCO + 12.5); //centro do círculo
-        for (int k = anguloMin; k <= anguloMax; k++){ //abertura da boca
-        float angulo = k * 3.14159265f / 180.0f; //converte o ângulo de graus para radianos
-        glVertex2f(i*LARGURA_DO_BLOCO + 12.5 + raio * cos(angulo),
-               j*LARGURA_DO_BLOCO + 12.5 + raio * sin(angulo)); //desenha os vértices do círculo
-        }
-    glEnd();
-    glFlush();
-    //glPopMatrix();
-    }*/
-
-    void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax) {
+void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax) {
     glColor3f(1.0, 1.0, 0.0); 
 
     glPushMatrix();  // Salva o estado atual da matriz
@@ -141,9 +121,6 @@ void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloM
     glFlush();
 }
 
-
-
-
 void desenhaLabirinto(){
     for (int i = 0; i < LINHAS; i++){
         for (int j = 0; j < COLUNAS; j++){
@@ -169,6 +146,7 @@ void desenhaLabirinto(){
                 desenhaCirculo(j, i, 3, 0, 360, 1.0f, 1.0f, 0.0f);
                 break;
             default:
+            desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
                 break;
             }
         }        
@@ -185,6 +163,7 @@ void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
     desenhaLabirinto();
     desenhaJogador();
+    desenhaPlacar(230, 487, "PLACAR");
     glutSwapBuffers();
 }
 
