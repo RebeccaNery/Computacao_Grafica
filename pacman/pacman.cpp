@@ -17,6 +17,7 @@ int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
 int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
 
+char mensagem[50];
 
 typedef struct jogador{
     int x, y;
@@ -163,7 +164,8 @@ void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
     desenhaLabirinto();
     desenhaJogador();
-    desenhaPlacar(230, 487, "PLACAR");
+    sprintf(mensagem, "Placar: %d", contaPontos);
+    desenhaPlacar(230, 487, mensagem);
     glutSwapBuffers();
 }
 
