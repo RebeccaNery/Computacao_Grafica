@@ -13,6 +13,7 @@ int anguloMin = 30;  // Ângulo inicial da boca aberta
 int anguloMax = 330; // Ângulo inicial da boca aberta
 int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
 //bool abrindo = true; // Variável de controle da direção da boca (true = abrindo, false = fechando)
+int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 
 
 typedef struct jogador{
@@ -168,6 +169,54 @@ void moverJogador(GLint dx, GLint dy){
     }
 }
 
+void moverJogadorDINAMICO(GLint valor){
+int dx = 0, dy = 0;
+
+switch (direcao)
+{
+case 1: //direita
+    dx=1; dy=0;
+    break;
+case 2: //esquerda  
+    dx=-1; dy=0;
+    break;  
+case 3: //cima
+    dx=0; dy=-1;
+    break;
+case 4: //baixo 
+    dx=0; dy=1;
+    break;
+default:
+    break;
+}
+
+int newX = jogador.x + dx;
+int newY = jogador.y + dy;
+
+    if(labirinto[newY][newX] != 1){
+        if(labirinto[newY][newX] == 2 && !jogador.possuiChave){
+            printf("Porta trancada! Encontre a Chave! \n");
+            return;
+        } else if(labirinto[newY][newX] == 3){
+            jogador.possuiChave = true;
+            printf("Chave encontrada! \n");
+            labirinto[newY][newX] = 0;
+        } else if(labirinto[newY][newX] == 4){
+            printf("VocÃª escapou do Labirinto!!! :) \n");
+            exit(0);
+        } else if(labirinto[newY][newX] == 5){
+            labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
+        }
+
+        jogador.x = newX;
+        jogador.y = newY;
+        glutPostRedisplay();
+    }
+
+
+        glutTimerFunc(200, moverJogadorDINAMICO, 0);
+    }
+
 void mexeBoca(GLint valor){
     // Abrir ou fechar a boca de acordo com os limites
     anguloMin += deltaAngulo;
@@ -191,20 +240,25 @@ void mexeBoca(GLint valor){
 void teclado(GLint tecla, GLint, GLint){
     switch (tecla){
     case GLUT_KEY_LEFT:
-        moverJogador(-1, 0);
+        direcao = 2;
+        //moverJogador(-1, 0);
         break;
     case GLUT_KEY_RIGHT:
-        moverJogador(1, 0);
+        direcao = 1;
+        //moverJogador(1, 0);
         break;
     case GLUT_KEY_UP:
-        moverJogador(0, -1);
+    direcao = 3;
+        //moverJogador(0, -1);
         break;
     case GLUT_KEY_DOWN:
-        moverJogador(0, 1);
+    direcao = 4;
+        //moverJogador(0, 1);
         break;
     default:
         break;
     }
+
 }
 
 int main(int argc, char **argv){
@@ -213,6 +267,7 @@ int main(int argc, char **argv){
     glutDisplayFunc(desenha);
     glutSpecialFunc(teclado);
     glutTimerFunc(0, mexeBoca, 0);
+    glutTimerFunc(0, moverJogadorDINAMICO, 0);
 
     glutMainLoop();
     return 0;
