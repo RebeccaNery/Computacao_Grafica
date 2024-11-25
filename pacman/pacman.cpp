@@ -192,7 +192,6 @@ void desenha(){
     glutSwapBuffers();
 }
 
-
 void moverJogadorDINAMICO(GLint valor){
 int dx = 0, dy = 0;
 
@@ -232,9 +231,6 @@ int newY = jogador.y + dy;
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
             printf("Placar: %d \n", contaPontos);
-            if (contaPontos ==3){
-                printf("Voce comeu todas as bolinhas! Parabens! \n");
-            }
             //if (aindaTemBolinhas() == 0){
             //    printf("Voce comeu todas as bolinhas! Parabens! \n");
             //}
