@@ -29,26 +29,27 @@ Jogador jogador = {1, 1, false};
 
 // Labirinto representado como matriz 2D
 int labirinto[LINHAS][COLUNAS] = {
+    
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 5, 5, 1, 5, 5, 5, 5, 1, 5, 1, 5, 5, 5, 1, 5, 5, 3, 1},
-    {1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1},
-    {1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 1},
-    {1, 5, 1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1, 5, 1},
-    {1, 5, 1, 5, 1, 1, 5, 1, 5, 1, 5, 1, 1, 1, 5, 1, 5, 1, 5, 1},
-    {1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1},
-    {1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 5, 1},
-    {1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 1},
+    {1, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 void initializeGlut(int argc, char **argv){
@@ -147,6 +148,10 @@ void desenhaLabirinto(){
                 desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
                 desenhaCirculo(j, i, 3, 0, 360, 1.0f, 1.0f, 0.0f);
                 break;
+            case 6: //bolinhas magicas
+                desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
+                desenhaCirculo(j, i, 5, 0, 360, 1.0f, 0.0f, 1.0f);
+                break;
             default:
             desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
                 break;
@@ -166,12 +171,8 @@ int aindaTemBolinhas(){
         for(int j = 0; j < COLUNAS; j++){
             if(labirinto[i][j] == 5){
                 return 1;
-                cont++;
             }
         }
-    }
-    if (cont == 3){
-        return 2;
     }
     return 0;
 }
@@ -183,43 +184,14 @@ void desenha(){
     if (aindaTemBolinhas() == 1){
         sprintf(mensagem, "Placar: %d", contaPontos);
         desenhaPlacar(230, 487, mensagem);
-    }else{
+    }else{ //ESSA PARTE NÃO TÁ ROLANDO
         sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
-        desenhaPlacar(230, 487, mensagem);
+        desenhaPlacar(170, 487, mensagem);
     }
     
     glutSwapBuffers();
 }
 
-
-
-void moverJogador(GLint dx, GLint dy){
-    int newX = jogador.x + dx;
-    int newY = jogador.y + dy;
-
-    if(labirinto[newY][newX] != 1){
-        if(labirinto[newY][newX] == 2 && !jogador.possuiChave){
-            printf("Porta trancada! Encontre a Chave! \n");
-            return;
-        } else if(labirinto[newY][newX] == 3){
-            jogador.possuiChave = true;
-            printf("Chave encontrada! \n");
-            labirinto[newY][newX] = 0;
-        } else if(labirinto[newY][newX] == 4){
-            printf("VocÃª escapou do Labirinto!!! :) \n");
-            exit(0);
-        } else if(labirinto[newY][newX] == 5){
-            contaPontos++;
-            printf("Pontos: %d \n", contaPontos); //nao esta aparecendo na tela !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
-            
-        }
-        jogador.x = newX;
-        jogador.y = newY;
-        
-        glutPostRedisplay();
-    }
-}
 
 void moverJogadorDINAMICO(GLint valor){
 int dx = 0, dy = 0;
@@ -255,7 +227,7 @@ int newY = jogador.y + dy;
             labirinto[newY][newX] = 0;
         } else if(labirinto[newY][newX] == 4){
             printf("Voce escapou do Labirinto!!! :) \n");
-            exit(0);
+            //exit(0);
         } else if(labirinto[newY][newX] == 5){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
