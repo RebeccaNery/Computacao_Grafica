@@ -16,6 +16,7 @@ int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
 //bool abrindo = true; // Variável de controle da direção da boca (true = abrindo, false = fechando)
 int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
+int cont = 0;
 
 char mensagem[50];
 
@@ -29,7 +30,7 @@ Jogador jogador = {1, 1, false};
 // Labirinto representado como matriz 2D
 int labirinto[LINHAS][COLUNAS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 1, 5, 5, 5, 5, 1, 5, 1, 5, 5, 5, 1, 5, 5, 3, 1},
+    {1, 0, 5, 5, 1, 5, 5, 5, 5, 1, 5, 1, 5, 5, 5, 1, 5, 5, 3, 1},
     {1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1},
     {1, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 5, 1},
@@ -45,7 +46,7 @@ int labirinto[LINHAS][COLUNAS] = {
     {1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 5, 5, 1},
     {1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 4, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
@@ -160,14 +161,37 @@ void desenhaJogador(){
     desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
 }
 
+int aindaTemBolinhas(){
+    for(int i = 0; i < LINHAS; i++){
+        for(int j = 0; j < COLUNAS; j++){
+            if(labirinto[i][j] == 5){
+                return 1;
+                cont++;
+            }
+        }
+    }
+    if (cont == 3){
+        return 2;
+    }
+    return 0;
+}
+
 void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
     desenhaLabirinto();
     desenhaJogador();
-    sprintf(mensagem, "Placar: %d", contaPontos);
-    desenhaPlacar(230, 487, mensagem);
+    if (aindaTemBolinhas() == 1){
+        sprintf(mensagem, "Placar: %d", contaPontos);
+        desenhaPlacar(230, 487, mensagem);
+    }else{
+        sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
+        desenhaPlacar(230, 487, mensagem);
+    }
+    
     glutSwapBuffers();
 }
+
+
 
 void moverJogador(GLint dx, GLint dy){
     int newX = jogador.x + dx;
@@ -221,7 +245,7 @@ default:
 int newX = jogador.x + dx;
 int newY = jogador.y + dy;
 
-    if(labirinto[newY][newX] != 1){
+    if(labirinto[newY][newX] != 1){ //colisões
         if(labirinto[newY][newX] == 2 && !jogador.possuiChave){
             printf("Porta trancada! Encontre a Chave! \n");
             return;
@@ -235,7 +259,15 @@ int newY = jogador.y + dy;
         } else if(labirinto[newY][newX] == 5){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
-            printf("Pontos: %d \n", contaPontos);
+            printf("Placar: %d \n", contaPontos);
+            if (contaPontos ==3){
+                printf("Voce comeu todas as bolinhas! Parabens! \n");
+            }
+            //if (aindaTemBolinhas() == 0){
+            //    printf("Voce comeu todas as bolinhas! Parabens! \n");
+            //}
+                
+                
         }
 
         jogador.x = newX;
