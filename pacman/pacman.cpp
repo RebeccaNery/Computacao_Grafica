@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <cmath>
 #include <string.h>
+//GERENCIAMENTO DO SOM >>>>>>>>>>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <iostream>
 
 #define LARGURA 500
 #define ALTURA 500
@@ -26,11 +30,17 @@ typedef struct jogador{
 
 Jogador jogador = {1, 1, false};
 
+typedef struct fantasma{
+    int x, y;
+} Fantasma;
+
+Fantasma fantasma = {10, 11};
+
 // Labirinto representado como matriz 2D
 int labirinto[LINHAS][COLUNAS] = {
     
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
@@ -78,6 +88,7 @@ void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
 }
 
 void desenhaPlacar(GLint x, GLint y, const char* texto) {
+    glColor3f(1.0, 1.0, 0.0); // Cor do texto
     glRasterPos2f(x, y); // Define a posição inicial do texto
     for (const char* c = texto; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c); // Renderiza cada caractere
@@ -126,13 +137,13 @@ void desenhaLabirinto(){
         for (int j = 0; j < COLUNAS; j++){
             switch (labirinto[i][j])
             {
-            case 0: //Desenha bloco vazio
+            case 0: //Desenha bloco vazio - preto
                 desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
                 break;
-            case 1: //Desenha Parede
+            case 1: //Desenha Parede - azul 
                 desenhaBloco(j, i, 0.0f, 0.0f, 0.5f);
                 break;
-            case 2: //Desenha porta trancada
+            /*case 2: //Desenha porta trancada
                 desenhaBloco(j, i, 1.0f, 0.0f, 0.0f);
                 break;
             case 3: //Desenha Chave
@@ -140,8 +151,8 @@ void desenhaLabirinto(){
                 break;
             case 4: //Desenha Saida
                 desenhaBloco(j, i, 0.0f, 1.0f, 0.0f);
-                break;
-            case 5: //Desenha bloco em branco + bolinha
+                break;*/
+            case 5: //Desenha bloco preto + bolinha
                 desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
                 desenhaCirculo(j, i, 3, 0, 360, 1.0f, 1.0f, 0.0f);
                 break;
@@ -150,7 +161,7 @@ void desenhaLabirinto(){
                 desenhaCirculo(j, i, 5, 0, 360, 1.0f, 0.0f, 1.0f);
                 break;
             default:
-            desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
+                desenhaBloco(j, i, 1.0f, 1.0f, 1.0f);
                 break;
             }
         }        
@@ -158,9 +169,12 @@ void desenhaLabirinto(){
 }
 
 void desenhaJogador(){
-    //desenhaBloco(jogador.x, jogador.y, 1.0f, 0.0f, 1.0f);
     desenhaCirculo(jogador.x, jogador.y, 11.0, 0, 360, 0.0f, 0.0f, 0.0f);
     desenhaBoca(jogador.x, jogador.y, 12.5, anguloMin, anguloMax);
+}
+
+void desenhaFantasma(){
+    desenhaBloco(fantasma.x, fantasma.y, 1.0f, 0.0f, 1.0f);
 }
 
 int aindaTemBolinhas(){
@@ -178,6 +192,7 @@ void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
     desenhaLabirinto();
     desenhaJogador();
+    desenhaFantasma();
     if (aindaTemBolinhas() == 1){
         sprintf(mensagem, "Placar: %d", contaPontos);
         desenhaPlacar(230, 487, mensagem);
@@ -187,6 +202,40 @@ void desenha(){
     }
     
     glutSwapBuffers();
+}
+
+void playSound(const char* filename) {
+    // Inicializa o SDL e o subsistema de áudio
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        std::cerr << "Erro ao inicializar SDL: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    // Inicializa o SDL_Mixer
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "Erro ao inicializar SDL Mixer: " << Mix_GetError() << std::endl;
+        return;
+    }
+
+    // Carrega o arquivo de som
+    Mix_Chunk* sound = Mix_LoadWAV(filename);
+    if (!sound) {
+        std::cerr << "Erro ao carregar som: " << Mix_GetError() << std::endl;
+        Mix_CloseAudio();
+        SDL_Quit();
+        return;
+    }
+
+    // Toca o som no canal livre
+    Mix_PlayChannel(-1, sound, 0);
+
+    std::cout << "Som tocando... pressione Enter para sair." << std::endl;
+    std::cin.get();
+
+    // Limpa a memória
+    Mix_FreeChunk(sound);
+    Mix_CloseAudio();
+    SDL_Quit();
 }
 
 void moverJogador(GLint valor){
@@ -228,6 +277,7 @@ int newY = jogador.y + dy;
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
             printf("Placar: %d \n", contaPontos);
+            //playSound("pacman_chomp.wav");
         } else if(labirinto[newY][newX] == 6){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ficou mais rápido por 10 passos!
             velocidade = 2;
@@ -240,13 +290,6 @@ int newY = jogador.y + dy;
         jogador.y = newY;
         glutPostRedisplay();
     }
-
-        if (velocidade == 2){  //==============================================> arrumar isso aqui
-            for (int t=0; t<5; t++){
-                glutTimerFunc(100, moverJogador, 0);
-            }
-            
-        }
         
         velocidade = 1;
         glutTimerFunc(150, moverJogador, 0);
@@ -269,7 +312,7 @@ void mexeBoca(GLint valor){
     glutPostRedisplay();
 
     // Reprograma o próximo frame da animação
-    glutTimerFunc(30, mexeBoca, 0); // Intervalo de 30ms
+    glutTimerFunc(16, mexeBoca, 0); // Intervalo de 30ms
 }
 
 void teclado(GLint tecla, GLint, GLint){
@@ -297,6 +340,7 @@ void teclado(GLint tecla, GLint, GLint){
 }
 
 int main(int argc, char **argv){
+
     initializeGlut(argc, argv);
     initializeOpenGL();
     glutDisplayFunc(desenha);
@@ -305,5 +349,6 @@ int main(int argc, char **argv){
     glutTimerFunc(0, moverJogador, 0);
 
     glutMainLoop();
+
     return 0;
 }

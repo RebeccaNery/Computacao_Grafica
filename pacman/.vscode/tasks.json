@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar SDL2",
+            "type": "shell",
+            "command": "/usr/bin/g++", // No Windows, ajuste para o caminho do g++
+            "args": [
+                "-g",
+                "main.cpp",
+                "-o",
+                "jogo",
+                "-lSDL2",
+                "-lSDL2_mixer"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}
