@@ -13,10 +13,9 @@ const int LARGURA_DO_BLOCO = 25;
 int anguloMin = 30;  // Ângulo inicial da boca aberta
 int anguloMax = 330; // Ângulo inicial da boca aberta
 int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
-//bool abrindo = true; // Variável de controle da direção da boca (true = abrindo, false = fechando)
 int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
-int cont = 0;
+int velocidade = 1;
 
 char mensagem[50];
 
@@ -57,9 +56,10 @@ void initializeGlut(int argc, char **argv){
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowPosition(50, 50);
     glutInitWindowSize(LARGURA,ALTURA);
-    glutCreateWindow("PAC-MAN");
+    glutCreateWindow("PAC-MAN DIFERENCIADO");
     
 }
+
 void initializeOpenGL(){
     glClearColor(0, 0, 0, 255);
     glMatrixMode(GL_MODELVIEW);
@@ -96,20 +96,17 @@ void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloM
     glEnd();
 }
 
-
 void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax) {
     glColor3f(1.0, 1.0, 0.0); 
-
     glPushMatrix();  // Salva o estado atual da matriz
-    // Move o sistema de coordenadas para o centro da boca
-    glTranslatef(i * LARGURA_DO_BLOCO + 12.5, j * LARGURA_DO_BLOCO + 12.5, 0.0f);
+    glTranslatef(i * LARGURA_DO_BLOCO + 12.5, j * LARGURA_DO_BLOCO + 12.5, 0.0f); // Move o sistema de coordenadas para o centro da boca
 
-    if (direcao == 2) {  // Caso de rotação
-        glRotatef(180.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação no eixo Z
-    }else if (direcao == 3) {  // Caso de rotação
-        glRotatef(270.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação no eixo Z
-    }else if (direcao == 4) {  // Caso de rotação
-        glRotatef(90.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação no eixo Z
+    if (direcao == 2) {  // Caso de rotação para a esquerda
+        glRotatef(180.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação de 180 graus no eixo Z (para a esquerda)
+    }else if (direcao == 3) {  // Caso de rotação para cima
+        glRotatef(270.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação de 270 graus no eixo Z (para cima)
+    }else if (direcao == 4) {  // Caso de rotação para baixo
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação de 90 graus no eixo Z (para baixo)
     }
 
     glBegin(GL_TRIANGLE_FAN);
@@ -192,7 +189,7 @@ void desenha(){
     glutSwapBuffers();
 }
 
-void moverJogadorDINAMICO(GLint valor){
+void moverJogador(GLint valor){
 int dx = 0, dy = 0;
 
 switch (direcao)
@@ -227,14 +224,15 @@ int newY = jogador.y + dy;
         } else if(labirinto[newY][newX] == 4){
             printf("Voce escapou do Labirinto!!! :) \n");
             //exit(0);
-        } else if(labirinto[newY][newX] == 5){
+        } else if(labirinto[newY][newX] == 5 ){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
             printf("Placar: %d \n", contaPontos);
-            //if (aindaTemBolinhas() == 0){
-            //    printf("Voce comeu todas as bolinhas! Parabens! \n");
-            //}
-                
+        } else if(labirinto[newY][newX] == 6){
+            labirinto[newY][newX] = 0; //pacman comeu a bolinha e ficou mais rápido por 10 passos!
+            velocidade = 2;
+            contaPontos++;
+            printf("Placar: %d \n", contaPontos);           
                 
         }
 
@@ -243,8 +241,15 @@ int newY = jogador.y + dy;
         glutPostRedisplay();
     }
 
-
-        glutTimerFunc(200, moverJogadorDINAMICO, 0);
+        if (velocidade == 2){  //==============================================> arrumar isso aqui
+            for (int t=0; t<5; t++){
+                glutTimerFunc(100, moverJogador, 0);
+            }
+            
+        }
+        
+        velocidade = 1;
+        glutTimerFunc(150, moverJogador, 0);
     }
 
 void mexeBoca(GLint valor){
@@ -297,7 +302,7 @@ int main(int argc, char **argv){
     glutDisplayFunc(desenha);
     glutSpecialFunc(teclado);
     glutTimerFunc(0, mexeBoca, 0);
-    glutTimerFunc(0, moverJogadorDINAMICO, 0);
+    glutTimerFunc(0, moverJogador, 0);
 
     glutMainLoop();
     return 0;
