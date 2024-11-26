@@ -13,15 +13,16 @@
 const int LINHAS = 20;
 const int COLUNAS = 20;
 const int LARGURA_DO_BLOCO = 25;
-
+float distancia = 0.0f;
 int anguloMin = 30;  // Ângulo inicial da boca aberta
 int anguloMax = 330; // Ângulo inicial da boca aberta
 int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
 int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
 int velocidade = 1;
-
+int dx = 0, dy = 0;
 char mensagem[50];
+bool gameOver = false; // Flag para verificar se o jogo acabou
 
 typedef struct jogador{
     int x, y;
@@ -188,15 +189,25 @@ int aindaTemBolinhas(){
     return 0;
 }
 
+bool verificaColisao() {
+    float distancia = sqrt(pow(jogador.x - fantasma.x, 2) + pow(jogador.y - fantasma.y, 2));
+    return distancia < 1;
+}
+
 void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
     desenhaLabirinto();
     desenhaJogador();
     desenhaFantasma();
     if (aindaTemBolinhas() == 1){
-        sprintf(mensagem, "Placar: %d", contaPontos);
+        if(verificaColisao()){
+            sprintf(mensagem, "MORREU!!! Placar: %d", contaPontos);
+            }
+        else{
+            sprintf(mensagem, "Placar: %d", contaPontos);
+            }
         desenhaPlacar(230, 487, mensagem);
-    }else{ //ESSA PARTE NÃO TÁ ROLANDO
+    }else{
         sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
         desenhaPlacar(170, 487, mensagem);
     }
@@ -238,26 +249,29 @@ void playSound(const char* filename) {
     SDL_Quit();
 }
 
-void moverJogador(GLint valor){
-int dx = 0, dy = 0;
-
-switch (direcao)
-{
-case 1: //direita
-    dx=1; dy=0;
-    break;
-case 2: //esquerda  
-    dx=-1; dy=0;
-    break;  
-case 3: //cima
-    dx=0; dy=-1;
-    break;
-case 4: //baixo 
-    dx=0; dy=1;
-    break;
-default:
-    break;
+int determinaDirecao(){
+    switch (direcao){
+        case 1: //direita
+            dx=1; dy=0;
+            break;
+        case 2: //esquerda  
+            dx=-1; dy=0;
+            break;  
+        case 3: //cima
+            dx=0; dy=-1;
+            break;
+        case 4: //baixo 
+            dx=0; dy=1;
+            break;
+        default:
+            break;
+    }
+return dx, dy;
 }
+
+void moverJogador(GLint valor){
+
+dx, dy = determinaDirecao();
 
 int newX = jogador.x + dx;
 int newY = jogador.y + dy;
@@ -288,6 +302,11 @@ int newY = jogador.y + dy;
 
         jogador.x = newX;
         jogador.y = newY;
+
+        if (verificaColisao()) {
+            printf("O Pacman foi pego pelo Fantasminha! \n");
+        }
+
         glutPostRedisplay();
     }
         
