@@ -21,7 +21,7 @@ int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
 int velocidade = 1;
 int dx = 0, dy = 0;
-char mensagem[50];
+char mensagem[80];
 bool gameOver = false; // Flag para verificar se o jogo acabou
 
 typedef struct jogador{
@@ -61,6 +61,33 @@ int labirinto[LINHAS][COLUNAS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
+
+void resetaLabirinto(){
+int labirintoOriginal[LINHAS][COLUNAS] = {
+    
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+memcpy(labirinto, labirintoOriginal, sizeof(labirintoOriginal)); // Copia o labirinto original para o atual
+}
 
 void initializeGlut(int argc, char **argv){
     glutInit(&argc, argv);
@@ -196,20 +223,21 @@ bool verificaColisao() {
 
 void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
-    desenhaLabirinto();
-    desenhaJogador();
-    desenhaFantasma();
-    if (aindaTemBolinhas() == 1){
-        if(verificaColisao()){
-            sprintf(mensagem, "MORREU!!! Placar: %d", contaPontos);
-            }
-        else{
-            sprintf(mensagem, "Placar: %d", contaPontos);
-            }
-        desenhaPlacar(230, 487, mensagem);
+
+    if (gameOver) {
+        sprintf(mensagem, "Game Over! 'r' para reiniciar ou 'q' para sair.");
+        desenhaPlacar(20, 230, mensagem);
     }else{
-        sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
-        desenhaPlacar(170, 487, mensagem);
+        desenhaLabirinto();
+        desenhaJogador();
+        desenhaFantasma();
+        if (aindaTemBolinhas() == 1){
+            sprintf(mensagem, "Placar: %d", contaPontos);
+            desenhaPlacar(230, 487, mensagem);
+        }else{
+            sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
+            desenhaPlacar(170, 487, mensagem);
+        }
     }
     
     glutSwapBuffers();
@@ -270,24 +298,12 @@ return dx, dy;
 }
 
 void moverJogador(GLint valor){
-
 dx, dy = determinaDirecao();
-
 int newX = jogador.x + dx;
 int newY = jogador.y + dy;
 
-    if(labirinto[newY][newX] != 1){ //colisões
-        if(labirinto[newY][newX] == 2 && !jogador.possuiChave){
-            printf("Porta trancada! Encontre a Chave! \n");
-            return;
-        } else if(labirinto[newY][newX] == 3){
-            jogador.possuiChave = true;
-            printf("Chave encontrada! \n");
-            labirinto[newY][newX] = 0;
-        } else if(labirinto[newY][newX] == 4){
-            printf("Voce escapou do Labirinto!!! :) \n");
-            //exit(0);
-        } else if(labirinto[newY][newX] == 5 ){
+    if(labirinto[newY][newX] != 1){ // controle de colisões
+        if(labirinto[newY][newX] == 5 ){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
             printf("Placar: %d \n", contaPontos);
@@ -305,14 +321,15 @@ int newY = jogador.y + dy;
 
         if (verificaColisao()) {
             printf("O Pacman foi pego pelo Fantasminha! \n");
+            gameOver = true;
         }
 
         glutPostRedisplay();
-    }
+    }// if != 1
         
         velocidade = 1;
         glutTimerFunc(150, moverJogador, 0);
-    }
+    }// void moverJogador
 
 void mexeBoca(GLint valor){
     // Abrir ou fechar a boca de acordo com os limites
@@ -335,6 +352,21 @@ void mexeBoca(GLint valor){
 }
 
 void teclado(GLint tecla, GLint, GLint){
+    if (gameOver){
+        if(tecla == GLUT_KEY_UP){
+            jogador.x = 1;
+            jogador.y = 1;
+            contaPontos = 0;
+            gameOver = false;
+            resetaLabirinto();
+        }else if(tecla == GLUT_KEY_DOWN){
+            exit(0);
+        }
+        return;
+    }
+
+printf("Tecla: %d \n", tecla);
+
     switch (tecla){
     case GLUT_KEY_LEFT:
         direcao = 2;
@@ -345,11 +377,11 @@ void teclado(GLint tecla, GLint, GLint){
         //moverJogador(1, 0);
         break;
     case GLUT_KEY_UP:
-    direcao = 3;
+        direcao = 3;
         //moverJogador(0, -1);
         break;
     case GLUT_KEY_DOWN:
-    direcao = 4;
+        direcao = 4;
         //moverJogador(0, 1);
         break;
     default:
