@@ -20,6 +20,9 @@ FT_Library ft;
 FT_Face face;
 GLuint* textures;
 
+Mix_Chunk* somMorte = nullptr;
+Mix_Chunk* somInicio = nullptr;
+
 #define LARGURA 500
 #define ALTURA 500
 
@@ -36,6 +39,7 @@ int dx = 0, dy = 0, fx = 0, fy = 0;
 int vidas = 3;
 char mensagem[80];
 bool gameOver = false; // Flag para verificar se o jogo acabou
+bool pacmanMorto = false;
 
 typedef struct jogador{
     int x, y;
@@ -100,6 +104,43 @@ int labirintoOriginal[LINHAS][COLUNAS] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 memcpy(labirinto, labirintoOriginal, sizeof(labirintoOriginal)); // Copia o labirinto original para o atual
+}
+
+void inicializarAudio() {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        std::cerr << "Erro ao inicializar SDL: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "Erro ao inicializar SDL_mixer: " << Mix_GetError() << std::endl;
+        exit(1);
+    }
+
+    /// Carregar os sons
+    somMorte = Mix_LoadWAV("pacman_death.wav");
+    somInicio = Mix_LoadWAV("pacman_beginning.wav");
+
+    if (!somMorte || !somInicio) {
+        std::cerr << "Erro ao carregar som: " << Mix_GetError() << std::endl;
+        exit(1);
+    }
+}
+
+void verificarMorte() {
+        Mix_PlayChannel(-1, somMorte, 0);
+    
+}
+
+void tocarSomInicio() {
+    Mix_PlayChannel(-1, somInicio, 0);
+}
+
+void finalizarAudio() {
+    Mix_FreeChunk(somMorte);
+    Mix_FreeChunk(somInicio);
+    Mix_CloseAudio();
+    SDL_Quit();
 }
 
 void initializeGlut(int argc, char **argv){
@@ -172,7 +213,6 @@ if (err != GL_NO_ERROR) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 }
-
 
 void desenhaPlacar2(GLint x, GLint y, const char* texto) {
     glColor3f(1.0, 1.0, 0.0); // Cor do texto
@@ -387,9 +427,9 @@ int newY = jogador.y + dy;
             contaPontos++;     
         }
 
-        
-
         if (verificaColisao()) {
+             
+            verificarMorte();
             direcaoFantasma = 0;
             direcaoJogador = 0;
             fantasma.x = 10;
@@ -442,12 +482,14 @@ int newY = fantasma.y + fy;
 
     if(labirinto[newY][newX] != 1){ // controle de colisões
         if (verificaColisao()) {
+            verificarMorte();
             direcaoFantasma = 0;
             direcaoJogador = 0;
             fantasma.x = 10;
             fantasma.y = 11;
             jogador.x = 1;
             jogador.y = 1;
+            vidas--;
             printf("Vidas: %d \n", vidas);
             if (vidas == 0) {
                 gameOver = true;
@@ -524,6 +566,10 @@ int main(int argc, char **argv){
     initializeGlut(argc, argv);
     initializeOpenGL();
     //initFreeType();
+        inicializarAudio();
+        tocarSomInicio();
+        
+        
     glutDisplayFunc(desenha);
     glutSpecialFunc(tecladoEspecial);
     glutKeyboardFunc(tecladoPadrao);
@@ -531,8 +577,9 @@ int main(int argc, char **argv){
     glutTimerFunc(0, moverJogador, 0);
     glutTimerFunc(0, moverFantasma, 0);
 
-    glutMainLoop();
+    glutMainLoop();    
 
+    finalizarAudio();
 
     return 0;
 }
