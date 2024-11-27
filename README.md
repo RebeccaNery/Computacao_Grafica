@@ -12,5 +12,5 @@ eventos_OpenGL -->
 
 pacman --> adaptação do jogo do Pac-Man utilizando OpenGL + GLUT
 
-https://github.com/user-attachments/assets/0c8fc3d5-4226-4d32-99f8-247848dd11b6
+https://github.com/user-attachments/assets/e711815c-67e2-43b5-97d1-f65cc2d567b0
 
