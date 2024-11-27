@@ -9,3 +9,8 @@ my_gl_framework --> Utilizando o framework OpenGL fornecido pelo professor, adap
 eventos_OpenGL --> 
 1. Eventos utilizando o mouse
 2. Eventos utilizando o teclado
+
+pacman --> adaptação do jogo do Pac-Man utilizando OpenGL + GLUT
+
+https://github.com/user-attachments/assets/0c8fc3d5-4226-4d32-99f8-247848dd11b6
+
