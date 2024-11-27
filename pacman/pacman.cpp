@@ -17,10 +17,10 @@ float distancia = 0.0f;
 int anguloMin = 30;  // Ângulo inicial da boca aberta
 int anguloMax = 330; // Ângulo inicial da boca aberta
 int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
-int direcao = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
+int direcaoJogador = 0, direcaoFantasma = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
 int velocidade = 1;
-int dx = 0, dy = 0;
+int dx = 0, dy = 0, fx = 0, fy = 0;
 char mensagem[80];
 bool gameOver = false; // Flag para verificar se o jogo acabou
 
@@ -41,23 +41,23 @@ Fantasma fantasma = {10, 11};
 int labirinto[LINHAS][COLUNAS] = {
     
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
@@ -140,11 +140,11 @@ void desenhaBoca(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax)
     glPushMatrix();  // Salva o estado atual da matriz
     glTranslatef(i * LARGURA_DO_BLOCO + 12.5, j * LARGURA_DO_BLOCO + 12.5, 0.0f); // Move o sistema de coordenadas para o centro da boca
 
-    if (direcao == 2) {  // Caso de rotação para a esquerda
+    if (direcaoJogador == 2) {  // Caso de rotação para a esquerda
         glRotatef(180.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação de 180 graus no eixo Z (para a esquerda)
-    }else if (direcao == 3) {  // Caso de rotação para cima
+    }else if (direcaoJogador == 3) {  // Caso de rotação para cima
         glRotatef(270.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação de 270 graus no eixo Z (para cima)
-    }else if (direcao == 4) {  // Caso de rotação para baixo
+    }else if (direcaoJogador == 4) {  // Caso de rotação para baixo
         glRotatef(90.0f, 0.0f, 0.0f, 1.0f); // Aplica rotação de 90 graus no eixo Z (para baixo)
     }
 
@@ -171,15 +171,6 @@ void desenhaLabirinto(){
             case 1: //Desenha Parede - azul 
                 desenhaBloco(j, i, 0.0f, 0.0f, 0.5f);
                 break;
-            /*case 2: //Desenha porta trancada
-                desenhaBloco(j, i, 1.0f, 0.0f, 0.0f);
-                break;
-            case 3: //Desenha Chave
-                desenhaBloco(j, i, 1.0f, 1.0f, 0.0f);
-                break;
-            case 4: //Desenha Saida
-                desenhaBloco(j, i, 0.0f, 1.0f, 0.0f);
-                break;*/
             case 5: //Desenha bloco preto + bolinha
                 desenhaBloco(j, i, 0.0f, 0.0f, 0.0f);
                 desenhaCirculo(j, i, 3, 0, 360, 1.0f, 1.0f, 0.0f);
@@ -225,8 +216,10 @@ void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (gameOver) {
-        sprintf(mensagem, "Game Over! 'r' para reiniciar ou 'q' para sair.");
+        sprintf(mensagem, "Game Over! 'seta subindo'");
         desenhaPlacar(20, 230, mensagem);
+        sprintf(mensagem, "para reiniciar ou 'seta descendo' para sair.");
+        desenhaPlacar(20, 250, mensagem);
     }else{
         desenhaLabirinto();
         desenhaJogador();
@@ -237,6 +230,8 @@ void desenha(){
         }else{
             sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
             desenhaPlacar(170, 487, mensagem);
+            gameOver = true;
+            return;
         }
     }
     
@@ -277,8 +272,8 @@ void playSound(const char* filename) {
     SDL_Quit();
 }
 
-int determinaDirecao(){
-    switch (direcao){
+int determinaDirecaoJogador(){
+    switch (direcaoJogador){
         case 1: //direita
             dx=1; dy=0;
             break;
@@ -297,8 +292,28 @@ int determinaDirecao(){
 return dx, dy;
 }
 
+int determinaDirecaoFantasma(){
+    switch (direcaoFantasma){
+        case 1: //direita
+            fx=1; fy=0;
+            break;
+        case 2: //esquerda
+            fx=-1; fy=0;
+            break;
+        case 3: //cima
+            fx=0; fy=-1;
+            break;
+        case 4: //baixo
+            fx=0; fy=1;
+            break;
+        default:
+            break;
+    }
+return fx, fy;
+}
+
 void moverJogador(GLint valor){
-dx, dy = determinaDirecao();
+dx, dy = determinaDirecaoJogador();
 int newX = jogador.x + dx;
 int newY = jogador.y + dy;
 
@@ -306,28 +321,22 @@ int newY = jogador.y + dy;
         if(labirinto[newY][newX] == 5 ){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
-            printf("Placar: %d \n", contaPontos);
             //playSound("pacman_chomp.wav");
         } else if(labirinto[newY][newX] == 6){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ficou mais rápido por 10 passos!
-            velocidade = 2;
-            contaPontos++;
-            printf("Placar: %d \n", contaPontos);           
-                
+            contaPontos++;          
         }
 
         jogador.x = newX;
         jogador.y = newY;
 
         if (verificaColisao()) {
-            printf("O Pacman foi pego pelo Fantasminha! \n");
             gameOver = true;
         }
 
         glutPostRedisplay();
     }// if != 1
         
-        velocidade = 1;
         glutTimerFunc(150, moverJogador, 0);
     }// void moverJogador
 
@@ -351,7 +360,21 @@ void mexeBoca(GLint valor){
     glutTimerFunc(16, mexeBoca, 0); // Intervalo de 30ms
 }
 
-void teclado(GLint tecla, GLint, GLint){
+void moverFantasma(GLint valor){
+fx, fy = determinaDirecaoFantasma();
+int newX = fantasma.x + fx;
+int newY = fantasma.y + fy;
+
+    if(labirinto[newY][newX] != 1){ // controle de colisões
+        fantasma.x = newX;
+        fantasma.y = newY;
+        glutPostRedisplay();
+    }// if != 1
+        
+        glutTimerFunc(150, moverFantasma, 0);
+    }
+
+void tecladoEspecial(GLint tecla, GLint, GLint){
     if (gameOver){
         if(tecla == GLUT_KEY_UP){
             jogador.x = 1;
@@ -365,24 +388,18 @@ void teclado(GLint tecla, GLint, GLint){
         return;
     }
 
-printf("Tecla: %d \n", tecla);
-
     switch (tecla){
     case GLUT_KEY_LEFT:
-        direcao = 2;
-        //moverJogador(-1, 0);
+        direcaoJogador = 2;
         break;
     case GLUT_KEY_RIGHT:
-        direcao = 1;
-        //moverJogador(1, 0);
+        direcaoJogador = 1;
         break;
     case GLUT_KEY_UP:
-        direcao = 3;
-        //moverJogador(0, -1);
+        direcaoJogador = 3;
         break;
     case GLUT_KEY_DOWN:
-        direcao = 4;
-        //moverJogador(0, 1);
+        direcaoJogador = 4;
         break;
     default:
         break;
@@ -390,14 +407,36 @@ printf("Tecla: %d \n", tecla);
 
 }
 
+void tecladoPadrao(GLubyte tecla, GLint, GLint){
+    switch (tecla){
+    case 'd':
+        direcaoFantasma = 1;
+        break;
+    case 'a':
+        direcaoFantasma = 2;
+        break;
+    case 'w':
+        direcaoFantasma = 3;
+        break;
+    case 's':
+        direcaoFantasma = 4;
+        break;
+    default:
+        break;
+    }
+    printf("Direcao: %d \n", direcaoFantasma);
+}
+
 int main(int argc, char **argv){
 
     initializeGlut(argc, argv);
     initializeOpenGL();
     glutDisplayFunc(desenha);
-    glutSpecialFunc(teclado);
+    glutSpecialFunc(tecladoEspecial);
+    glutKeyboardFunc(tecladoPadrao);
     glutTimerFunc(0, mexeBoca, 0);
     glutTimerFunc(0, moverJogador, 0);
+    glutTimerFunc(0, moverFantasma, 0);
 
     glutMainLoop();
 
