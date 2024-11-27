@@ -54,7 +54,7 @@ Fantasma fantasma = {10, 11};
 int labirinto[LINHAS][COLUNAS] = {
     
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
@@ -322,7 +322,9 @@ void desenha(){
         desenhaJogador();
         desenhaFantasma();
         sprintf(mensagem, "PLACAR: %d", contaPontos);
-        desenhaPlacar(230, 487, mensagem);
+        desenhaPlacar(20, 20, mensagem);
+        sprintf(mensagem, "VIDAS: %d", vidas);
+        desenhaPlacar(400, 20, mensagem);
         
     }
     
