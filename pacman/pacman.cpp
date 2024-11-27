@@ -13,6 +13,12 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+//FONTE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+FT_Library ft;
+FT_Face face;
+GLuint* textures;
 
 #define LARGURA 500
 #define ALTURA 500
@@ -23,14 +29,13 @@ const int LARGURA_DO_BLOCO = 25;
 float distancia = 0.0f;
 int anguloMin = 30;  // Ângulo inicial da boca aberta
 int anguloMax = 330; // Ângulo inicial da boca aberta
-int deltaAngulo = 2; // A velocidade de abertura/fechamento da boca
+int deltaAngulo = 2; // velocidade de abertura/fechamento da boca
 int direcaoJogador = 0, direcaoFantasma = 0; // 1 = direita, 2 = esquerda, 3 = cima, 4 = baixo
 int contaPontos = 0;
-int velocidade = 1;
 int dx = 0, dy = 0, fx = 0, fy = 0;
+int vidas = 3;
 char mensagem[80];
 bool gameOver = false; // Flag para verificar se o jogo acabou
-bool vitoria = false; // Flag para verificar se o jogador venceu
 
 typedef struct jogador{
     int x, y;
@@ -121,6 +126,86 @@ void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
         glVertex2d((i+1) * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
         glVertex2d(i * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
     glEnd();
+}
+
+void initFreeType() {
+    if (FT_Init_FreeType(&ft)) {
+        std::cerr << "Erro ao inicializar a biblioteca FreeType!" << std::endl;
+        exit(1);
+    } else {
+    std::cout << "FreeType inicializado com sucesso!" << std::endl;
+    }
+
+    // Substitua com o caminho correto no seu sistema
+    if (FT_New_Face(ft, "/mnt/c/Users/rebec/Repositorios/Computacao_Grafica/pacman/Minecraft.ttf", 0, &face)) {
+        std::cerr << "Erro ao carregar a fonte!" << std::endl;
+        exit(1);
+    } else {
+    std::cout << "Fonte carregada com sucesso!" << std::endl;
+    }
+
+    FT_Set_Pixel_Sizes(face, 0, 48);  // Define o tamanho da fonte
+
+    // Gerar as texturas para os caracteres
+    textures = new GLuint[128];  // Assumindo ASCII de 0 a 127
+    glGenTextures(128, textures);  // Gerar as texturas
+    std::cout << "Texturas geradas para os caracteres!" << std::endl;
+
+    for (unsigned char c = 0; c < 128; c++) {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+            std::cerr << "Erro ao carregar o caractere " << c << std::endl;
+            continue;
+        }
+
+// Verifique o tamanho da textura carregada
+    std::cout << "Carregando caractere " << c << ": Largura = " << face->glyph->bitmap.width
+              << ", Altura = " << face->glyph->bitmap.rows << std::endl;
+
+        // Cria a textura para o caractere
+        glBindTexture(GL_TEXTURE_2D, textures[c]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+        GLenum err = glGetError();
+if (err != GL_NO_ERROR) {
+    std::cerr << "Erro OpenGL: " << gluErrorString(err) << std::endl;
+}
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+}
+
+
+void desenhaPlacar2(GLint x, GLint y, const char* texto) {
+    glColor3f(1.0, 1.0, 0.0); // Cor do texto
+    glEnable(GL_TEXTURE_2D);  // Ativa o uso de texturas
+
+    glPushMatrix();  // Salva o estado atual da matriz de transformação
+    glTranslatef(x, y, 0);  // Move para a posição onde o texto será desenhado
+
+    // Para cada caractere no texto
+    for (const char* c = texto; *c != '\0'; c++) {
+        unsigned char character = *c;
+        if (character < 128) {  // Verifica se o caractere está dentro do intervalo suportado
+            // Configura a textura para o caractere
+            glBindTexture(GL_TEXTURE_2D, textures[character]);
+
+            GLfloat w = face->glyph->bitmap.width;  // Largura do caractere
+            GLfloat h = face->glyph->bitmap.rows;  // Altura do caractere
+
+            // Desenha o caractere como um quadrado com a textura aplicada
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0); // Posição inferior esquerda
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(w, 0); // Posição inferior direita
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(w, h); // Posição superior direita
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(0, h); // Posição superior esquerda
+            glEnd();
+
+            // Move para a próxima posição de texto
+            x += w; // Avança a posição na direção X
+        }
+    }
+
+    glPopMatrix();  // Restaura a matriz de transformação
+    glDisable(GL_TEXTURE_2D);  // Desativa o uso de texturas
 }
 
 void desenhaPlacar(GLint x, GLint y, const char* texto) {
@@ -225,7 +310,7 @@ void desenha(){
 
     if (gameOver) {
         if (aindaTemBolinhas() == 0){
-            sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
+            sprintf(mensagem, "PARABENS! PLACAR: %d", contaPontos);
             desenhaPlacar(170, 487, mensagem);
         }
         sprintf(mensagem, "Game Over! 'seta subindo'");
@@ -236,7 +321,7 @@ void desenha(){
         desenhaLabirinto();
         desenhaJogador();
         desenhaFantasma();
-        sprintf(mensagem, "Placar: %d", contaPontos);
+        sprintf(mensagem, "PLACAR: %d", contaPontos);
         desenhaPlacar(230, 487, mensagem);
         
     }
@@ -259,6 +344,7 @@ int determinaDirecaoJogador(){
             dx=0; dy=1;
             break;
         default:
+        dx=0; dy=0;
             break;
     }
 return dx, dy;
@@ -279,6 +365,7 @@ int determinaDirecaoFantasma(){
             fx=0; fy=1;
             break;
         default:
+        fx=0; fy=0;
             break;
     }
 return fx, fy;
@@ -298,16 +385,26 @@ int newY = jogador.y + dy;
             contaPontos++;     
         }
 
-        jogador.x = newX;
-        jogador.y = newY;
+        
 
         if (verificaColisao()) {
-                       //detectCollisionAndPlaySound();  // Chame essa função quando a colisão for detectada
+            direcaoFantasma = 0;
+            direcaoJogador = 0;
+            fantasma.x = 10;
+            fantasma.y = 11;
+            jogador.x = 1;
+            jogador.y = 1;
+            vidas--;
+            printf("Vidas: %d \n", vidas);
+            if (vidas == 0) {
+                gameOver = true;
+            }
+        }else{
+            if(aindaTemBolinhas() == 0){
             gameOver = true;
-        }
-
-        if(aindaTemBolinhas() == 0){
-            gameOver = true;
+            }
+            jogador.x = newX;
+            jogador.y = newY;
         }
 
         glutPostRedisplay();
@@ -342,10 +439,27 @@ int newX = fantasma.x + fx;
 int newY = fantasma.y + fy;
 
     if(labirinto[newY][newX] != 1){ // controle de colisões
+        if (verificaColisao()) {
+            direcaoFantasma = 0;
+            direcaoJogador = 0;
+            fantasma.x = 10;
+            fantasma.y = 11;
+            jogador.x = 1;
+            jogador.y = 1;
+            printf("Vidas: %d \n", vidas);
+            if (vidas == 0) {
+                gameOver = true;
+            }
+        }else{
         fantasma.x = newX;
         fantasma.y = newY;
         glutPostRedisplay();
+        }
+        
     }// if != 1
+
+
+    
         
         glutTimerFunc(150, moverFantasma, 0);
     }
@@ -407,6 +521,7 @@ int main(int argc, char **argv){
 
     initializeGlut(argc, argv);
     initializeOpenGL();
+    //initFreeType();
     glutDisplayFunc(desenha);
     glutSpecialFunc(tecladoEspecial);
     glutKeyboardFunc(tecladoPadrao);
@@ -415,6 +530,7 @@ int main(int argc, char **argv){
     glutTimerFunc(0, moverFantasma, 0);
 
     glutMainLoop();
+
 
     return 0;
 }
