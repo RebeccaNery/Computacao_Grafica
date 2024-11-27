@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <cmath>
 #include <string.h>
+#include <time.h> 
 //GERENCIAMENTO DO SOM >>>>>>>>>>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -23,6 +24,7 @@ int velocidade = 1;
 int dx = 0, dy = 0, fx = 0, fy = 0;
 char mensagem[80];
 bool gameOver = false; // Flag para verificar se o jogo acabou
+bool vitoria = false; // Flag para verificar se o jogador venceu
 
 typedef struct jogador{
     int x, y;
@@ -216,6 +218,10 @@ void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (gameOver) {
+        if (aindaTemBolinhas() == 0){
+            sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
+            desenhaPlacar(170, 487, mensagem);
+        }
         sprintf(mensagem, "Game Over! 'seta subindo'");
         desenhaPlacar(20, 230, mensagem);
         sprintf(mensagem, "para reiniciar ou 'seta descendo' para sair.");
@@ -224,15 +230,9 @@ void desenha(){
         desenhaLabirinto();
         desenhaJogador();
         desenhaFantasma();
-        if (aindaTemBolinhas() == 1){
-            sprintf(mensagem, "Placar: %d", contaPontos);
-            desenhaPlacar(230, 487, mensagem);
-        }else{
-            sprintf(mensagem, "Parabens! Placar: %d", contaPontos);
-            desenhaPlacar(170, 487, mensagem);
-            gameOver = true;
-            return;
-        }
+        sprintf(mensagem, "Placar: %d", contaPontos);
+        desenhaPlacar(230, 487, mensagem);
+        
     }
     
     glutSwapBuffers();
@@ -331,6 +331,10 @@ int newY = jogador.y + dy;
         jogador.y = newY;
 
         if (verificaColisao()) {
+            gameOver = true;
+        }
+
+        if(aindaTemBolinhas() == 0){
             gameOver = true;
         }
 
