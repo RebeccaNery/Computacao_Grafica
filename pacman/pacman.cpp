@@ -4,9 +4,12 @@
 #include <string.h>
 #include <time.h> 
 //GERENCIAMENTO DO SOM >>>>>>>>>>
+#include <GL/glut.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #define LARGURA 500
 #define ALTURA 500
@@ -238,16 +241,45 @@ void desenha(){
     glutSwapBuffers();
 }
 
-void playSound(const char* filename) {
+void playMusicInBackground(const char* filename) {// Função para tocar música em segundo plano com SDL_mixer
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        std::cerr << "Erro ao inicializar SDL: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "Erro ao inicializar SDL Mixer: " << Mix_GetError() << std::endl;
+        SDL_Quit();
+        return;
+    }
+
+    Mix_Music* music = Mix_LoadMUS(filename);
+    if (!music) {
+        std::cerr << "Erro ao carregar música: " << Mix_GetError() << std::endl;
+        Mix_CloseAudio();
+        SDL_Quit();
+        return;
+    }
+
+    if (Mix_PlayMusic(music, 1) == -1) {
+        std::cerr << "Erro ao tocar música: " << Mix_GetError() << std::endl;
+        Mix_FreeMusic(music);
+        Mix_CloseAudio();
+        SDL_Quit();
+        return;
+    }
+}
+
+void playCollisionSound(const char* filename) {
     // Inicializa o SDL e o subsistema de áudio
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         std::cerr << "Erro ao inicializar SDL: " << SDL_GetError() << std::endl;
         return;
     }
 
-    // Inicializa o SDL_Mixer
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         std::cerr << "Erro ao inicializar SDL Mixer: " << Mix_GetError() << std::endl;
+        SDL_Quit();
         return;
     }
 
@@ -260,16 +292,27 @@ void playSound(const char* filename) {
         return;
     }
 
-    // Toca o som no canal livre
+    // Toca o som (sem loop)
     Mix_PlayChannel(-1, sound, 0);
 
-    std::cout << "Som tocando... pressione Enter para sair." << std::endl;
-    std::cin.get();
+    // Aguarda um pouco para garantir que o som tenha tempo de tocar
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));  // Tempo do som
 
     // Limpa a memória
     Mix_FreeChunk(sound);
     Mix_CloseAudio();
     SDL_Quit();
+}
+
+void detectCollisionAndPlaySound() {
+    // Detecte a colisão aqui
+    bool colisao = true;  // Exemplo de condição de colisão (alterar conforme sua lógica)
+    if (colisao) {
+        // Cria uma nova thread para tocar o som
+        std::thread collisionThread(playCollisionSound, "../Musicas/collision_sound.wav");
+        // A thread será executada em segundo plano, enquanto o resto do código continua.
+        collisionThread.detach();  // Desanexar a thread para rodar em segundo plano
+    }
 }
 
 int determinaDirecaoJogador(){
@@ -332,6 +375,7 @@ int newY = jogador.y + dy;
 
         if (verificaColisao()) {
             gameOver = true;
+            detectCollisionAndPlaySound();  // Chame essa função quando a colisão for detectada
         }
 
         if(aindaTemBolinhas() == 0){
@@ -435,6 +479,7 @@ int main(int argc, char **argv){
 
     initializeGlut(argc, argv);
     initializeOpenGL();
+    std::thread musicThread(playMusicInBackground, "pacman_beginning.wav");  // Inicia a thread para tocar música
     glutDisplayFunc(desenha);
     glutSpecialFunc(tecladoEspecial);
     glutKeyboardFunc(tecladoPadrao);
