@@ -13,15 +13,21 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
-//FONTE
+//FONTE >>>>>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 FT_Library ft;
 FT_Face face;
 GLuint* textures;
+//TEXTURA >>>>>>>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+GLuint texturaID;
+
 
 Mix_Chunk* somMorte = nullptr;
 Mix_Chunk* somInicio = nullptr;
+Mix_Chunk* somComer = nullptr;
 
 #define LARGURA 500
 #define ALTURA 500
@@ -52,13 +58,15 @@ typedef struct fantasma{
     int x, y;
 } Fantasma;
 
-Fantasma fantasma = {10, 11};
+//Fantasma fantasma = {10, 11};
+Fantasma fantasma = {3, 1};
+
 
 // Labirinto representado como matriz 2D
 int labirinto[LINHAS][COLUNAS] = {
     
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
@@ -76,7 +84,7 @@ int labirinto[LINHAS][COLUNAS] = {
     {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
     {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} 
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 void resetaLabirinto(){
@@ -106,6 +114,9 @@ int labirintoOriginal[LINHAS][COLUNAS] = {
 memcpy(labirinto, labirintoOriginal, sizeof(labirintoOriginal)); // Copia o labirinto original para o atual
 }
 
+// SOM ==================================>
+
+
 void inicializarAudio() {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         std::cerr << "Erro ao inicializar SDL: " << SDL_GetError() << std::endl;
@@ -120,11 +131,20 @@ void inicializarAudio() {
     /// Carregar os sons
     somMorte = Mix_LoadWAV("pacman_death.wav");
     somInicio = Mix_LoadWAV("pacman_beginning.wav");
+    somComer = Mix_LoadWAV("pacman_chomp.wav");
 
-    if (!somMorte || !somInicio) {
+    if (!somMorte || !somInicio || !somComer) {
         std::cerr << "Erro ao carregar som: " << Mix_GetError() << std::endl;
         exit(1);
     }
+}
+
+void tocarSomInicio() {
+    Mix_PlayChannel(-1, somInicio, 0);
+}
+
+void tocarSomComer() {
+    Mix_PlayChannel(-1, somComer, 0);
 }
 
 void verificarMorte() {
@@ -132,13 +152,10 @@ void verificarMorte() {
     
 }
 
-void tocarSomInicio() {
-    Mix_PlayChannel(-1, somInicio, 0);
-}
-
 void finalizarAudio() {
     Mix_FreeChunk(somMorte);
     Mix_FreeChunk(somInicio);
+    Mix_FreeChunk(somComer);
     Mix_CloseAudio();
     SDL_Quit();
 }
@@ -168,6 +185,8 @@ void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
         glVertex2d(i * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
     glEnd();
 }
+
+// FONTE ==================================>
 
 void initFreeType() {
     if (FT_Init_FreeType(&ft)) {
@@ -345,6 +364,45 @@ bool verificaColisao() {
     return distancia < 1;
 }
 
+// TEXTURA ==================================>
+
+// Função para carregar uma textura
+void carregarTextura(const char* arquivo) {
+    int largura, altura, canais;
+    unsigned char* imagem = stbi_load(arquivo, &largura, &altura, &canais, STBI_rgb_alpha);
+    if (imagem == nullptr) {
+        printf("Erro ao carregar a textura: %s\n", stbi_failure_reason());
+        return;
+    }
+
+    glGenTextures(1, &texturaID);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imagem);
+    stbi_image_free(imagem);
+}
+
+// Função para desenhar um quadrado com textura
+void desenhaQuadradoComTextura() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+
+    int largura = 200;
+    int altura = 100;
+    int centroX = (LARGURA / 2) - (largura / 2);
+    int centroY = 100 - (altura / 2);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex2i(centroX, centroY);                 // Inferior esquerdo
+        glTexCoord2f(1.0, 0.0); glVertex2i(centroX + largura, centroY);       // Inferior direito
+        glTexCoord2f(1.0, 1.0); glVertex2i(centroX + largura, centroY + altura); // Superior direito
+        glTexCoord2f(0.0, 1.0); glVertex2i(centroX, centroY + altura);        // Superior esquerdo
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+}
+
 void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -352,6 +410,7 @@ void desenha(){
         if (aindaTemBolinhas() == 0){
             sprintf(mensagem, "PARABENS! PLACAR: %d", contaPontos);
             desenhaPlacar(170, 487, mensagem);
+            desenhaQuadradoComTextura();
         }
         sprintf(mensagem, "Game Over! 'seta subindo'");
         desenhaPlacar(20, 230, mensagem);
@@ -365,6 +424,7 @@ void desenha(){
         desenhaPlacar(20, 20, mensagem);
         sprintf(mensagem, "VIDAS: %d", vidas);
         desenhaPlacar(400, 20, mensagem);
+        
         
     }
     
@@ -422,6 +482,7 @@ int newY = jogador.y + dy;
         if(labirinto[newY][newX] == 5 ){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
+            //tocarSomComer();
         } else if(labirinto[newY][newX] == 6){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ficou mais rápido por 10 passos!
             contaPontos++;     
@@ -569,6 +630,7 @@ int main(int argc, char **argv){
         inicializarAudio();
         tocarSomInicio();
         
+        carregarTextura("vitoria.png");
         
     glutDisplayFunc(desenha);
     glutSpecialFunc(tecladoEspecial);
