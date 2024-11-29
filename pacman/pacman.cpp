@@ -5,6 +5,7 @@
 #include <cmath>
 #include <string.h>
 #include <time.h> 
+#include <GL/freeglut.h>
 //GERENCIAMENTO DO SOM >>>>>>>>>>
 #include <GL/glut.h>
 #include <SDL2/SDL.h>
@@ -19,11 +20,12 @@
 FT_Library ft;
 FT_Face face;
 GLuint* textures;
+
 //TEXTURA >>>>>>>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 GLuint texturaID;
-
+GLuint aberturaTexture, vitoriaTexture, fantasmaTexture;
 
 Mix_Chunk* somMorte = nullptr;
 Mix_Chunk* somInicio = nullptr;
@@ -45,7 +47,7 @@ int dx = 0, dy = 0, fx = 0, fy = 0;
 int vidas = 3;
 char mensagem[80];
 bool gameOver = false; // Flag para verificar se o jogo acabou
-bool pacmanMorto = false;
+bool somConcluido = false;
 
 typedef struct jogador{
     int x, y;
@@ -58,64 +60,84 @@ typedef struct fantasma{
     int x, y;
 } Fantasma;
 
-//Fantasma fantasma = {10, 11};
-Fantasma fantasma = {3, 1};
+Fantasma fantasma = {10, 11};
 
 
-// Labirinto representado como matriz 2D
+// LABIRINTO ==================================>
 int labirinto[LINHAS][COLUNAS] = {
     
+    /*{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 5, 0, 5, 0, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 1, 1, 1, 1, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 5, 0, 5, 0, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} */ 
+
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    {1, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} 
+    // matriz de testes
 };
 
 void resetaLabirinto(){
 int labirintoOriginal[LINHAS][COLUNAS] = {
     
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
-    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 5, 0, 5, 0, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 1, 1, 1, 1, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 5, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 5, 0, 5, 0, 5, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1},
+    {1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+    {1, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} 
 };
 memcpy(labirinto, labirintoOriginal, sizeof(labirintoOriginal)); // Copia o labirinto original para o atual
 }
 
 // SOM ==================================>
-
 
 void inicializarAudio() {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
@@ -131,11 +153,17 @@ void inicializarAudio() {
     /// Carregar os sons
     somMorte = Mix_LoadWAV("pacman_death.wav");
     somInicio = Mix_LoadWAV("pacman_beginning.wav");
-    somComer = Mix_LoadWAV("pacman_chomp.wav");
+    somComer = Mix_LoadWAV("collect-points.mp3");
 
     if (!somMorte || !somInicio || !somComer) {
         std::cerr << "Erro ao carregar som: " << Mix_GetError() << std::endl;
         exit(1);
+    }
+}
+
+void verificarSomConcluido() {
+    if (Mix_Playing(-1) == 0) {  // Se a música não está mais tocando
+        somConcluido = true;  // Marca como concluído
     }
 }
 
@@ -149,7 +177,6 @@ void tocarSomComer() {
 
 void verificarMorte() {
         Mix_PlayChannel(-1, somMorte, 0);
-    
 }
 
 void finalizarAudio() {
@@ -160,13 +187,14 @@ void finalizarAudio() {
     SDL_Quit();
 }
 
+//CONFIGURAÇÕES INICIAIS GLUT ==================================>
+
 void initializeGlut(int argc, char **argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowPosition(50, 50);
     glutInitWindowSize(LARGURA,ALTURA);
     glutCreateWindow("PAC-MAN DIFERENCIADO");
-    
 }
 
 void initializeOpenGL(){
@@ -174,16 +202,6 @@ void initializeOpenGL(){
     glMatrixMode(GL_MODELVIEW);
     //esquerda, direita, baixo, cima
     gluOrtho2D(0, LARGURA, ALTURA, 0);
-}
-
-void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
-    glColor3f(R, G, B);
-    glBegin(GL_QUADS);
-        glVertex2d(i * LARGURA_DO_BLOCO, j * LARGURA_DO_BLOCO);
-        glVertex2d((i+1) * LARGURA_DO_BLOCO, j * LARGURA_DO_BLOCO);
-        glVertex2d((i+1) * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
-        glVertex2d(i * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
-    glEnd();
 }
 
 // FONTE ==================================>
@@ -243,8 +261,7 @@ void desenhaPlacar2(GLint x, GLint y, const char* texto) {
     // Para cada caractere no texto
     for (const char* c = texto; *c != '\0'; c++) {
         unsigned char character = *c;
-        if (character < 128) {  // Verifica se o caractere está dentro do intervalo suportado
-            // Configura a textura para o caractere
+        if (character < 128) { 
             glBindTexture(GL_TEXTURE_2D, textures[character]);
 
             GLfloat w = face->glyph->bitmap.width;  // Largura do caractere
@@ -252,10 +269,10 @@ void desenhaPlacar2(GLint x, GLint y, const char* texto) {
 
             // Desenha o caractere como um quadrado com a textura aplicada
             glBegin(GL_QUADS);
-            glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0); // Posição inferior esquerda
-            glTexCoord2f(1.0f, 0.0f); glVertex2f(w, 0); // Posição inferior direita
-            glTexCoord2f(1.0f, 1.0f); glVertex2f(w, h); // Posição superior direita
-            glTexCoord2f(0.0f, 1.0f); glVertex2f(0, h); // Posição superior esquerda
+                glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0); // Posição inferior esquerda
+                glTexCoord2f(1.0f, 0.0f); glVertex2f(w, 0); // Posição inferior direita
+                glTexCoord2f(1.0f, 1.0f); glVertex2f(w, h); // Posição superior direita
+                glTexCoord2f(0.0f, 1.0f); glVertex2f(0, h); // Posição superior esquerda
             glEnd();
 
             // Move para a próxima posição de texto
@@ -265,7 +282,95 @@ void desenhaPlacar2(GLint x, GLint y, const char* texto) {
 
     glPopMatrix();  // Restaura a matriz de transformação
     glDisable(GL_TEXTURE_2D);  // Desativa o uso de texturas
+    glutSwapBuffers();
 }
+
+// TEXTURA ==================================>
+
+int carregarTextura(const char* arquivo) {
+    int largura, altura, canais;
+    unsigned char* imagem = stbi_load(arquivo, &largura, &altura, &canais, STBI_rgb_alpha);
+    if (imagem == nullptr) {
+        printf("Erro ao carregar a textura: %s\n", stbi_failure_reason());
+        //return;
+        exit(1);
+    }
+
+    glGenTextures(1, &texturaID);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imagem);
+    stbi_image_free(imagem);
+
+    return texturaID;
+}
+
+void desenhaQuadradoComTextura() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+
+    int largura = 200;
+    int altura = 100;
+    int centroX = (LARGURA / 2) - (largura / 2);
+    int centroY = 100 - (altura / 2);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex2i(centroX, centroY);                 // Inferior esquerdo
+        glTexCoord2f(1.0, 0.0); glVertex2i(centroX + largura, centroY);       // Inferior direito
+        glTexCoord2f(1.0, 1.0); glVertex2i(centroX + largura, centroY + altura); // Superior direito
+        glTexCoord2f(0.0, 1.0); glVertex2i(centroX, centroY + altura);        // Superior esquerdo
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+}
+
+void desenhaQuadradoComTextura2() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+
+    int largura = 600;
+    int altura = 500;
+    int centroX = (LARGURA / 2) - (largura / 2);
+    int centroY = (ALTURA/2) - (altura / 2);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex2i(centroX, centroY);                 // Inferior esquerdo
+        glTexCoord2f(1.0, 0.0); glVertex2i(centroX + largura, centroY);       // Inferior direito
+        glTexCoord2f(1.0, 1.0); glVertex2i(centroX + largura, centroY + altura); // Superior direito
+        glTexCoord2f(0.0, 1.0); glVertex2i(centroX, centroY + altura);        // Superior esquerdo
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+}
+
+void desenhaFantasmaComTextura() {
+    glEnable(GL_TEXTURE_2D);
+     glColor3f(1.0f, 1.0f, 1.0f);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+
+    int largura = 25;
+    int altura = 25;
+    int centroX = (fantasma.x*25)+12.5 - (largura / 2);
+    int centroY = (fantasma.y*25)+12.5 - (altura / 2);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex2i(centroX, centroY);                 // Inferior esquerdo
+        glTexCoord2f(1.0, 0.0); glVertex2i(centroX + largura, centroY);       // Inferior direito
+        glTexCoord2f(1.0, 1.0); glVertex2i(centroX + largura, centroY + altura); // Superior direito
+        glTexCoord2f(0.0, 1.0); glVertex2i(centroX, centroY + altura);        // Superior esquerdo
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+}
+
+void carregarTexturas() {
+    aberturaTexture = carregarTextura("Pac-Man-Logo.jpg");
+    vitoriaTexture = carregarTextura("vitoria.png");
+    fantasmaTexture = carregarTextura("fantasma.png");
+}
+
+// FUNÇÕES DE DESENHO ==================================>
 
 void desenhaPlacar(GLint x, GLint y, const char* texto) {
     glColor3f(1.0, 1.0, 0.0); // Cor do texto
@@ -273,6 +378,16 @@ void desenhaPlacar(GLint x, GLint y, const char* texto) {
     for (const char* c = texto; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c); // Renderiza cada caractere
     }
+}
+
+void desenhaBloco(GLint i, GLint j, GLfloat R, GLfloat G, GLfloat B){
+    glColor3f(R, G, B);
+    glBegin(GL_QUADS);
+        glVertex2d(i * LARGURA_DO_BLOCO, j * LARGURA_DO_BLOCO);
+        glVertex2d((i+1) * LARGURA_DO_BLOCO, j * LARGURA_DO_BLOCO);
+        glVertex2d((i+1) * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
+        glVertex2d(i * LARGURA_DO_BLOCO, (j+1) * LARGURA_DO_BLOCO);
+    glEnd();
 }
 
 void desenhaCirculo(GLint i, GLint j, GLint raio, GLint anguloMin, GLint anguloMax, GLfloat R, GLfloat G, GLfloat B){
@@ -345,8 +460,11 @@ void desenhaJogador(){
 }
 
 void desenhaFantasma(){
-    desenhaBloco(fantasma.x, fantasma.y, 1.0f, 0.0f, 1.0f);
+    //desenhaBloco(fantasma.x, fantasma.y, 1.0f, 0.0f, 1.0f);
+    desenhaFantasmaComTextura();
 }
+
+// FUNÇÕES DE VERIFICAÇÃO ==================================>
 
 int aindaTemBolinhas(){
     for(int i = 0; i < LINHAS; i++){
@@ -364,59 +482,31 @@ bool verificaColisao() {
     return distancia < 1;
 }
 
-// TEXTURA ==================================>
-
-// Função para carregar uma textura
-void carregarTextura(const char* arquivo) {
-    int largura, altura, canais;
-    unsigned char* imagem = stbi_load(arquivo, &largura, &altura, &canais, STBI_rgb_alpha);
-    if (imagem == nullptr) {
-        printf("Erro ao carregar a textura: %s\n", stbi_failure_reason());
-        return;
-    }
-
-    glGenTextures(1, &texturaID);
-    glBindTexture(GL_TEXTURE_2D, texturaID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imagem);
-    stbi_image_free(imagem);
-}
-
-// Função para desenhar um quadrado com textura
-void desenhaQuadradoComTextura() {
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texturaID);
-
-    int largura = 200;
-    int altura = 100;
-    int centroX = (LARGURA / 2) - (largura / 2);
-    int centroY = 100 - (altura / 2);
-
-    glBegin(GL_QUADS);
-        glTexCoord2f(0.0, 0.0); glVertex2i(centroX, centroY);                 // Inferior esquerdo
-        glTexCoord2f(1.0, 0.0); glVertex2i(centroX + largura, centroY);       // Inferior direito
-        glTexCoord2f(1.0, 1.0); glVertex2i(centroX + largura, centroY + altura); // Superior direito
-        glTexCoord2f(0.0, 1.0); glVertex2i(centroX, centroY + altura);        // Superior esquerdo
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
+void desenhaAbertura(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    desenhaQuadradoComTextura();
+    glutSwapBuffers();
 }
 
 void desenha(){
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (gameOver) {
+    if(somConcluido == false){
+        texturaID = aberturaTexture;
+        desenhaQuadradoComTextura2();
+    }else if (gameOver) {
         if (aindaTemBolinhas() == 0){
             sprintf(mensagem, "PARABENS! PLACAR: %d", contaPontos);
             desenhaPlacar(170, 487, mensagem);
+            texturaID = vitoriaTexture;
             desenhaQuadradoComTextura();
         }
-        sprintf(mensagem, "Game Over! 'seta subindo'");
+        sprintf(mensagem, "Game Over! Pressione 'r'");
         desenhaPlacar(20, 230, mensagem);
-        sprintf(mensagem, "para reiniciar ou 'seta descendo' para sair.");
+        sprintf(mensagem, "para reiniciar ou 'q' para sair.");
         desenhaPlacar(20, 250, mensagem);
     }else{
+        texturaID = fantasmaTexture;
         desenhaLabirinto();
         desenhaJogador();
         desenhaFantasma();
@@ -424,12 +514,15 @@ void desenha(){
         desenhaPlacar(20, 20, mensagem);
         sprintf(mensagem, "VIDAS: %d", vidas);
         desenhaPlacar(400, 20, mensagem);
-        
+        //drawText(400, 20, mensagem);
         
     }
-    
     glutSwapBuffers();
 }
+
+
+
+// MOVIMENTAÇÃO ==================================>
 
 int determinaDirecaoJogador(){
     switch (direcaoJogador){
@@ -482,7 +575,7 @@ int newY = jogador.y + dy;
         if(labirinto[newY][newX] == 5 ){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ela sumiu!
             contaPontos++;
-            //tocarSomComer();
+            tocarSomComer();
         } else if(labirinto[newY][newX] == 6){
             labirinto[newY][newX] = 0; //pacman comeu a bolinha e ficou mais rápido por 10 passos!
             contaPontos++;     
@@ -570,19 +663,7 @@ int newY = fantasma.y + fy;
     }
 
 void tecladoEspecial(GLint tecla, GLint, GLint){
-    if (gameOver){
-        if(tecla == GLUT_KEY_UP){
-            jogador.x = 1;
-            jogador.y = 1;
-            contaPontos = 0;
-            gameOver = false;
-            resetaLabirinto();
-        }else if(tecla == GLUT_KEY_DOWN){
-            exit(0);
-        }
-        return;
-    }
-
+    
     switch (tecla){
     case GLUT_KEY_LEFT:
         direcaoJogador = 2;
@@ -603,6 +684,19 @@ void tecladoEspecial(GLint tecla, GLint, GLint){
 }
 
 void tecladoPadrao(GLubyte tecla, GLint, GLint){
+    if (gameOver){
+        if(tecla == 'r'){
+            jogador.x = 1;
+            jogador.y = 1;
+            contaPontos = 0;
+            gameOver = false;
+            resetaLabirinto();
+        }else if(tecla == 'q'){
+            exit(0);
+        }
+        return;
+    }
+
     switch (tecla){
     case 'd':
         direcaoFantasma = 1;
@@ -627,11 +721,22 @@ int main(int argc, char **argv){
     initializeGlut(argc, argv);
     initializeOpenGL();
     //initFreeType();
-        inicializarAudio();
-        tocarSomInicio();
-        
-        carregarTextura("vitoria.png");
-        
+    //carregarTextura("Pac-Man-Logo.jpg");
+    
+    carregarTexturas();
+
+    inicializarAudio();
+    tocarSomInicio();
+    
+    while (!somConcluido) {
+        verificarSomConcluido(); 
+            glutMainLoopEvent();
+            glutDisplayFunc(desenha);
+            glutPostRedisplay();
+        SDL_Delay(50);         
+    }
+
+    //carregarTextura("vitoria.png");
     glutDisplayFunc(desenha);
     glutSpecialFunc(tecladoEspecial);
     glutKeyboardFunc(tecladoPadrao);
@@ -639,8 +744,7 @@ int main(int argc, char **argv){
     glutTimerFunc(0, moverJogador, 0);
     glutTimerFunc(0, moverFantasma, 0);
 
-    glutMainLoop();    
-
+    glutMainLoop();        
     finalizarAudio();
 
     return 0;
