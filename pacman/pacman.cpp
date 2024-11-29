@@ -346,7 +346,7 @@ void desenhaQuadradoComTextura2() {
 
 void desenhaFantasmaComTextura() {
     glEnable(GL_TEXTURE_2D);
-     glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glBindTexture(GL_TEXTURE_2D, texturaID);
 
     int largura = 25;
@@ -591,7 +591,6 @@ int newY = jogador.y + dy;
             jogador.x = 1;
             jogador.y = 1;
             vidas--;
-            printf("Vidas: %d \n", vidas);
             if (vidas == 0) {
                 gameOver = true;
             }
@@ -644,7 +643,6 @@ int newY = fantasma.y + fy;
             jogador.x = 1;
             jogador.y = 1;
             vidas--;
-            printf("Vidas: %d \n", vidas);
             if (vidas == 0) {
                 gameOver = true;
             }
@@ -713,7 +711,6 @@ void tecladoPadrao(GLubyte tecla, GLint, GLint){
     default:
         break;
     }
-    printf("Direcao: %d \n", direcaoFantasma);
 }
 
 int main(int argc, char **argv){
