@@ -1,5 +1,5 @@
 # Computacao_Grafica
-Projetos desenvolvidos durante a disciplina de Computação Gráfica.
+Projetos desenvolvidos durante a disciplina de Computação Gráfica, 2024.2.
 ---
 📁 my_gl_framework --> Utilizando o framework OpenGL fornecido pelo professor, adaptei o código para mostrar na tela:
 1. Um *pixel*, utilizando a função PutPixel, dadas as coordenadas x e y;
